@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Blender MTL File: 'Monster.blend'
 # Material Count : 1
 newmtl act_krovosos_new
@@ -10,3 +11,17 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd Models/MonsterLowQ/Low/tex/act_krovosos_new1.jpg
+=======
+# Blender MTL File: 'Monster.blend'
+# Material Count : 1
+newmtl act_krovosos_new
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Models/MonsterLowQ/Low/tex/act_krovosos_new1.jpg
+>>>>>>> 25c2999b6ca0d6d7e135b4065063f757140a9fe1

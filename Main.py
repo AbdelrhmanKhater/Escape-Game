@@ -178,13 +178,13 @@ def display():
 			#lisZombies[i].hit()
 	glLoadIdentity()	
 	world1.disp()
-	player1.move(keyState,alist1,lisObjs+lisDoors)
+	player1.move(keyState,alist1,lisObjs,lisDoors)
 	near(player1,lisTools,keyState)
 	glutSwapBuffers()
 
 
-	print(player1.x,player1.z)
-	print((time.time()-t)*1000)
+	#print(player1.x,player1.z)
+	#print((time.time()-t)*1000)
 
 
 def Timer(v): 

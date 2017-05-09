@@ -108,7 +108,7 @@ class player:
 
 	#make the player to move , depend on the key pressed on the keyboard 
 	#and check the collision
-	def move(self,keyState,alist,lisObjs):
+	def move(self,keyState,alist,lisObjs,lisDoors):
 		self.playerMove=0
 
 		x=self.x
@@ -159,7 +159,8 @@ class player:
 			self.x-=speed*cos(self.theta)
 			self.playerMove=1
 			
-		collied=collision(self,alist,lisObjs)
+		collied=collision(self,alist,lisObjs+lisDoors)
+		Near=near(self,lisDoors,keyState)
 		if(self.playerMove):
 			if not self.walkingAudio:
 				self.footSound.play(100)
@@ -169,14 +170,10 @@ class player:
 			self.walkingAudio=0
 			
 		if(collied or ((self.x>=35 and self.x<=45) and (self.z<50) and (self.z>49) and (self.y<10))):
-			if keyState[ord('e')] and collied[1] in ["Door","Knife","Gun","Batta"]:
-				collied[0].animation=1
-				collied[0].radius=0
-				print(collied[1])
-			else:
-				print(collied)
+			print(collied)
 			self.x=x
 			self.z=z
+		
 
 		
 

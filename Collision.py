@@ -14,8 +14,8 @@ def collision(player,vertex,lisOBJ):
     target=lisOBJ[i][0]
     typ=lisOBJ[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2 +(player.y-target.y))**0.5
-    if(dist<target.raidus or dist<target.raidus):
-      return typ
+    if(dist<target.radius):
+      return lisOBJ[i]
 
   return False  
 
@@ -24,7 +24,7 @@ def near(player,lisTools,keyState):
   for i in range(len(lisTools)):
     target=lisTools[i][0]
     typ=lisTools[i][1]
-    dist=((player.x-target.x)**2+(player.z-target.z)**2)**0.5
+    dist=((player.x-target.x)**2+(player.z-player.tall-target.z)**2)**0.5
     if(dist<2):
       print("near from ",typ,'\n',"press E to use")
       if(keyState[ord('e')]==1):

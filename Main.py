@@ -37,7 +37,9 @@ alist1=[#horizontal walls
 		[15,2],[15,4],
 		[15,5],[15,7],
 		[15,8],[15,9],
-		[18,0],[18,9]
+		[18,0],[18,9],
+		#staris
+		[14,3],[14,7]
 		]
 
 
@@ -122,11 +124,13 @@ def display():
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+
+
 	player1.updateCamera()
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
 	glLightfv(GL_LIGHT0, GL_POSITION,  (player1.x, player1.y, player1.z,1))
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30)
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 25)
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, [-sin(player1.theta), sin(player1.thetaUp), cos(player1.theta)])
 	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT,20)
 
@@ -149,23 +153,29 @@ def display():
 	glutWireSphere(0.01,10,10)
 	
 	#display all texture in the world (like sky)
+	glDisable(GL_COLOR_MATERIAL)
 	for i in range(len(lisTexture)):
 		glLoadIdentity()
 		lisTexture[i].disp()
 	#display all object in the world
 	for i in range(len(lisObjs)):
+		glLoadIdentity()
 		lisObjs[i][0].disp()
+	for i in range(len(lisDoors)):
+		glLoadIdentity()
+		lisDoors[i][0].dispDoor()
 	#display all zombies,make them walk.
 	for i in range(len(lisZombies)):
 		lisZombies[i].height(world1.height(lisZombies[i].x,lisZombies[i].z))
 		lisZombies[i].dist(player1,zombieSound)
+		glLoadIdentity()
 		lisZombies[i].disp()
 		lisZombies[i].walk(player1)
 		#if(lisZombies[i].criticalHit()==False):
 			#lisZombies[i].hit()
-		
+	glLoadIdentity()	
 	world1.disp()
-	player1.move(keyState,alist1,lisObjs)
+	player1.move(keyState,alist1,lisObjs+lisDoors)
 	near(player1,lisTools,keyState)
 	glutSwapBuffers()
 
@@ -313,8 +323,9 @@ def main():
 	world1=world('world.png',-1000,-1000)
 	world1.render(8,500)
 	yHouse=world1.height(26,5)
-	lisTexture.append(obje([OBJ("House.obj",False,"Models/House/")],[25,world1.height(25,4)+0.1,4],-1,0.05,0))
+	lisTexture.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
 
+	lisDoors.append([obje([OBJ("Door1_new.obj",False,"Models/Door1/")],0,[30+2.5,world1.height(30+2.5,4),4],4,0.05,0),"Door"])
 	#create some sound
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")
 	mainSound=pygame.mixer.Sound("Sounds/mainSound.wav")

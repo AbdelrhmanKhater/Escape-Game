@@ -43,7 +43,6 @@ class zombie:
 
 	#display the zombie and make appropriate translation and ....
 	def disp(self):
-		glLoadIdentity()
 		glTranslate(self.x,self.y,self.z)
 		glScale(self.scale,self.scale,self.scale)
 		glRotate(self.rotate,0,1,0)

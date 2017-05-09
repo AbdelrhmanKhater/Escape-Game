@@ -45,6 +45,6 @@ class texture:
 
 
 	def disp(self):
-		glDisable(GL_LIGHTING)
+		glDisable(GL_COLOR_MATERIAL)
 		glCallList(self.T)
-		glEnable(GL_LIGHTING)
+		

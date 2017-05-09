@@ -162,8 +162,13 @@ class player:
 		if(self.playerMove):
 			self.footSound.stop()
 			self.footSound.play()
-		if(collied):
-			print(collied)
+		if(collied or ((self.x>=35 and self.x<=45) and (self.z<50) and (self.z>49) and (self.y<10))):
+			if keyState[ord('e')] and collied[1] in ["Door","Knife","Gun","Batta"]:
+				collied[0].animation=1
+				collied[0].radius=0
+				print(collied[1])
+			else:
+				print(collied)
 			self.x=x
 			self.z=z
 

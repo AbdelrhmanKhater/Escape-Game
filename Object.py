@@ -3,20 +3,20 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import * 
 
 class obje:
-	def __init__(self,OBJ=None,lis=[0,0,0],raidus=0.5,scale=1,rotate=0):
+	def __init__(self,OBJ=None,animation=1,lis=[0,0,0],radius=0.5,scale=1,rotate=0):
 		self.OBJ=OBJ
 
 		self.x=lis[0]
 		self.y=lis[1]
 		self.z=lis[2]
 
-		self.raidus=raidus
+		self.radius=radius
 		self.scale=scale
 		self.rotate=rotate
 		
-		self.animation=1
+		self.animation=animation
 		self.i=0
-
+		self.angle=0
 	def updatePosition(self,x,y,z):
 		self.x=x
 		self.y=y
@@ -35,5 +35,15 @@ class obje:
 		glCallList(self.OBJ[self.i].gl_list)
 		if(self.animation==1):
 			self.i+=1
+
+	def dispDoor(self):
+		glTranslate(self.x-2.5,self.y,self.z)	
+		glRotate(self.angle,0,1,0)
+		glTranslate(2.5,0,0)
+		glRotate(0,self.rotate,self.rotate,self.rotate)
+		glScale(self.scale,self.scale,self.scale)
+		glCallList(self.OBJ[0].gl_list)
+		if self.animation and self.angle>-120:
+			self.angle-=2
 
 

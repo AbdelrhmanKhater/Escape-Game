@@ -39,6 +39,7 @@ class player:
 		self.t=0
 		self.currentTool=lisOBJ[0]
 		self.tools=len(self.lisOBJ)
+		self.walkingAudio=0
 
 	def hieght(self,hieght):
 		self.y=hieght+self.tall
@@ -160,8 +161,13 @@ class player:
 			
 		collied=collision(self,alist,lisObjs)
 		if(self.playerMove):
+			if not self.walkingAudio:
+				self.footSound.play(100)
+				self.walkingAudio=1
+		else:
 			self.footSound.stop()
-			self.footSound.play()
+			self.walkingAudio=0
+			
 		if(collied or ((self.x>=35 and self.x<=45) and (self.z<50) and (self.z>49) and (self.y<10))):
 			if keyState[ord('e')] and collied[1] in ["Door","Knife","Gun","Batta"]:
 				collied[0].animation=1

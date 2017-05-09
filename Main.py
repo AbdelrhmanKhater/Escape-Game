@@ -15,6 +15,7 @@ import sys, pygame,os,numpy,time
 
 #variables we need
 global player1,fovy,window_width,window_height,window_full_screen,fireSound,mainSound,zombieSound,footSound,world1,yHouse
+global sound_BGM,sound_game
 
 alist1=[#horizontal walls
 		[0,0],[1,0],
@@ -79,12 +80,14 @@ def init():
 
 #read setting from file like (the resolution , fovy etc...)
 def setting():
-	global window_width,window_height,window_full_screen,fovy
+	global window_width,window_height,window_full_screen,fovy,sound_BGM,sound_game
 	f= open('Option/op.in').read().split()
-	window_width=int(f[1])
-	window_height=int(f[3])
-	window_full_screen=int(f[5])
-	fovy=int(f[7])
+	window_width=int(f[2])
+	window_height=int(f[5])
+	window_full_screen=int(f[8])
+	fovy=int(f[11])
+	sound_BGM=float(f[14])
+	sound_game=float(f[17])
 
 #detect if bullet collied with zombie ?
 def bullet(player, enemy):
@@ -328,9 +331,15 @@ def main():
 	lisDoors.append([obje([OBJ("Door1_new.obj",False,"Models/Door1/")],0,[30+2.5,world1.height(30+2.5,4),4],4,0.05,0),"Door"])
 	#create some sound
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")
+	fireSound.set_volume(sound_game)
+
 	mainSound=pygame.mixer.Sound("Sounds/mainSound.wav")
+	mainSound.set_volume(sound_BGM)
+
 	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
+	
 	footSound=pygame.mixer.Sound("Sounds/FootStep.wav")
+	footSound.set_volume(sound_game)
 	mainSound.play(20)#play the mainSound 20 times 
 
 

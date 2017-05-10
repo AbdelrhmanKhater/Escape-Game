@@ -11,7 +11,7 @@ from math import *
 class player:
 	def __init__(self,fovy,Width,Height,footSound,lisOBJ):
 		self.fovy=fovy
-		self.speed=0.2
+		self.speed=0.25
 		self.footSound=footSound
 		self.jumpStrength=0.5
 		self.jumpSpeed=self.jumpStrength

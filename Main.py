@@ -122,6 +122,28 @@ def axe(player,enemy):
 	print(distance)
 	return distance<10
 
+
+#Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
+def draw_window(x,y,z,scale,rot=0):
+	glDisable(GL_TEXTURE_2D)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glRotate(rot,0,1,0)
+	glTranslate(x,y,z)
+	glEnable(GL_COLOR_MATERIAL) #AFFECT THE QUAD WITH COLOR_MATERIAL
+	glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE) #HOW THE QUAD WILL BE AFFECTED WITH COLOR MATERIAL
+	glColor4f(0.3,0.3,0.4,0.7)
+	glBegin(GL_QUADS)
+	glVertex(0,0,0)
+	glVertex(0,0,2.2*scale)
+	glVertex(0,1.8*scale,2.2*scale)
+	glVertex(0,1.8*scale,0)
+	glEnd()
+	#glColor(.15,.15,.15) #IF YOU WANT TO MAKE THE GAME MORE DARK, TRY THIS
+	glDisable(GL_BLEND)
+	glDisable(GL_COLOR_MATERIAL)
+	glEnable(GL_TEXTURE_2D)
+
 def display():
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
@@ -191,6 +213,7 @@ def display():
 
 
 	glLoadIdentity()	
+	draw_window(25.3,22.5,10.9,4.2)
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors)
 
@@ -345,7 +368,8 @@ def main():
 	yHouse=world1.height(26,5)
 	lisTexture.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
 
-	Dlis=[OBJ("Door1_new.obj",False,"Models/Door1/")]
+
+	Dlis=[OBJ("Door1.obj",False,"Models/Door1/")]
 	#first door
 	lisDoors.append([obje(Dlis,0,[32.5,world1.height(32.5,4),4],3,0.05,0,0,1),"Door"])
 	#first floor doors
@@ -358,6 +382,7 @@ def main():
 	lisSpecialDoors.append([obje(Dlis,0,[100,world1.height(32.5,4)+15,41.5],3,0.05,90,0,0),"Door","Done"])
 	lisDoors.append([obje(Dlis,0,[90,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
 	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
+
 
 	#create some sound
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")

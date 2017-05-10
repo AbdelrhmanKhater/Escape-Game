@@ -56,6 +56,6 @@ class obje:
 		glScale(self.scale,self.scale,self.scale)
 		glCallList(self.OBJ[0].gl_list)
 		if self.animation and self.angle>-120:
-			self.angle-=2
+			self.angle-=4
 
 

@@ -49,6 +49,7 @@ lisTexture=[]
 lisObjs=[]
 lisTools=[]
 lisDoors=[]
+lisSpecialDoors=[]
 #all keyboards buttons have value 0 if no button pressed
 keyState=[0 for i in range(0,256)]
 jum=0
@@ -176,16 +177,32 @@ def display():
 		lisZombies[i].walk(player1)
 		#if(lisZombies[i].criticalHit()==False):
 			#lisZombies[i].hit()
+	for i in range(len(lisSpecialDoors)):
+		glLoadIdentity()
+		lisSpecialDoors[i][0].dispDoor()
+		Epressed=near(player1,None,lisSpecialDoors,keyState)
+		if(Epressed):
+			Pass=displayPass()
+			if Pass==lisSpecialDoors[i][2]:
+				lisSpecialDoors[i][0].animation=1
+				lisSpecialDoors[i][0].radius=-1
+			else:
+				print("wrong pass")
+
+
 	glLoadIdentity()	
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors)
-	near(player1,lisTools,keyState)
+
 	glutSwapBuffers()
 
 
 	#print(player1.x,player1.z)
 	#print((time.time()-t)*1000)
 
+def displayPass():
+	s=input("enter the pass:")
+	return s
 
 def Timer(v): 
 	display() 
@@ -248,11 +265,11 @@ def mouseShoot(key,state,x,y):
 def main():
 	t=time.time()#to calculate time needed to load the game
 
-	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse
+	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors
 	pygame.init()
 	setting()
 	glutInit()
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH)
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 	glutInitWindowSize(window_width,window_height)
 	glutInitWindowPosition(0,0)
 	glutCreateWindow(b"WAR")
@@ -328,7 +345,20 @@ def main():
 	yHouse=world1.height(26,5)
 	lisTexture.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
 
-	lisDoors.append([obje([OBJ("Door1_new.obj",False,"Models/Door1/")],0,[30+2.5,world1.height(30+2.5,4),4],4,0.05,0),"Door"])
+	Dlis=[OBJ("Door1_new.obj",False,"Models/Door1/")]
+	#first door
+	lisDoors.append([obje(Dlis,0,[32.5,world1.height(32.5,4),4],3,0.05,0,0,1),"Door"])
+	#first floor doors
+	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4),14],3,0.05,90,0,1),"Door"])
+	lisSpecialDoors.append([obje(Dlis,0,[90,world1.height(32.5,4),14],3,0.05,90,1,0),"Door","HELP!"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),11.5],3,0.05,90,0,1),"Door"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),26.5],3,0.05,90,0,1),"Door"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),41.5],3,0.05,90,0,1),"Door"])
+	#second floor doors
+	lisSpecialDoors.append([obje(Dlis,0,[100,world1.height(32.5,4)+15,41.5],3,0.05,90,0,0),"Door","Done"])
+	lisDoors.append([obje(Dlis,0,[90,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
+	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
+
 	#create some sound
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")
 	fireSound.set_volume(sound_game)

@@ -159,8 +159,8 @@ class player:
 			self.x-=speed*cos(self.theta)
 			self.playerMove=1
 			
-		collied=collision(self,alist,lisObjs+lisDoors)
-		Near=near(self,lisDoors,keyState)
+		collied=collision(self,alist,lisObjs,lisDoors)
+		Near=near(self,None,lisDoors,keyState)
 		if(self.playerMove):
 			if not self.walkingAudio:
 				self.footSound.play(100)

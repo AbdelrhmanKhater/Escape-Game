@@ -50,6 +50,7 @@ lisObjs=[]
 lisTools=[]
 lisDoors=[]
 lisSpecialDoors=[]
+lisHouse=[]
 #all keyboards buttons have value 0 if no button pressed
 keyState=[0 for i in range(0,256)]
 jum=0
@@ -65,7 +66,7 @@ def init():
 	glEnable(GL_LIGHTING)
 	glEnable(GL_LIGHT0)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, [0.1, 0.1, 0.1, 1.0])
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.9, 0.9, 0.9, 1.0])
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.2, 0.2, 0.2, 1.0])
 	glLightfv(GL_LIGHT0, GL_SPECULAR, [1, 1, 1, 1.0])
 	glEnable(GL_LIGHT1)
 	glLightfv(GL_LIGHT1, GL_AMBIENT, [0.5, 0.5, 0.5, 1.0])
@@ -125,13 +126,15 @@ def axe(player,enemy):
 
 #Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
 def draw_window(x,y,z,scale,rot=0):
-	glDisable(GL_TEXTURE_2D)
+	
+	
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	glRotate(rot,0,1,0)
 	glTranslate(x,y,z)
-	glEnable(GL_COLOR_MATERIAL) #AFFECT THE QUAD WITH COLOR_MATERIAL
-	glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE) #HOW THE QUAD WILL BE AFFECTED WITH COLOR MATERIAL
+	glDisable(GL_LIGHTING)
+	#glEnable(GL_COLOR_MATERIAL) #AFFECT THE QUAD WITH COLOR_MATERIAL
+	#glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE) #HOW THE QUAD WILL BE AFFECTED WITH COLOR MATERIAL
 	glColor4f(0.3,0.3,0.4,0.7)
 	glBegin(GL_QUADS)
 	glVertex(0,0,0)
@@ -141,8 +144,12 @@ def draw_window(x,y,z,scale,rot=0):
 	glEnd()
 	#glColor(.15,.15,.15) #IF YOU WANT TO MAKE THE GAME MORE DARK, TRY THIS
 	glDisable(GL_BLEND)
+	glEnable(GL_LIGHTING)
+	#glColor4f(1,1,1,0)
+
 	glDisable(GL_COLOR_MATERIAL)
-	glEnable(GL_TEXTURE_2D)
+
+
 
 def display():
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
@@ -180,9 +187,15 @@ def display():
 	
 	#display all texture in the world (like sky)
 	glDisable(GL_COLOR_MATERIAL)
+
 	for i in range(len(lisTexture)):
 		glLoadIdentity()
+		glDisable(GL_LIGHTING)
 		lisTexture[i].disp()
+		glEnable(GL_LIGHTING)
+	for i in range(len(lisHouse)):
+		glLoadIdentity()
+		lisHouse[i].disp()
 	#display all object in the world
 	for i in range(len(lisObjs)):
 		glLoadIdentity()
@@ -211,9 +224,10 @@ def display():
 			else:
 				print("wrong pass")
 
-
-	glLoadIdentity()	
+	glLoadIdentity()
+	
 	draw_window(25.3,22.5,10.9,4.2)
+
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors)
 
@@ -288,7 +302,7 @@ def mouseShoot(key,state,x,y):
 def main():
 	t=time.time()#to calculate time needed to load the game
 
-	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors
+	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
 	pygame.init()
 	setting()
 	glutInit()
@@ -366,7 +380,7 @@ def main():
 	world1=world('world.png',-1000,-1000)
 	world1.render(8,500)
 	yHouse=world1.height(26,5)
-	lisTexture.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
+	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
 
 
 	Dlis=[OBJ("Door1.obj",False,"Models/Door1/")]

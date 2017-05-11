@@ -60,7 +60,7 @@ time_interval=30
 PI=3.14159265359
 
 #intialization of opengl
-def init():
+def init1():
 	glClearColor(1,1,1,0)
 	#glutSetCursor(GLUT_CURSOR_NONE)
 	glEnable(GL_LIGHTING)
@@ -323,7 +323,7 @@ def mouseShoot(key,state,x,y):
 		#get next gun
 		#play voice
 
-def main():
+def main1():
 	t=time.time()#to calculate time needed to load the game
 
 	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
@@ -331,10 +331,10 @@ def main():
 	setting()
 	glutInit()
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-	glutInitWindowSize(window_width,window_height)
-	glutInitWindowPosition(0,0)
-	glutCreateWindow(b"WAR")
-	init()
+	#glutInitWindowSize(window_width,window_height)
+	#glutInitWindowPosition(0,0)
+	#glutCreateWindow(b"WAR")
+	init1()
 
 	for i in range(len(alist1)):
 		alist1[i][0]=alist1[i][0]*5+25
@@ -452,4 +452,3 @@ def main():
 	print((time.time()-t)*1000)#print the time needed to load 
 	glutMainLoop()
 
-main()

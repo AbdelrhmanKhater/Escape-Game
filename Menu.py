@@ -5,6 +5,8 @@ import pygame, random, sys
 global background_id
 global menuimage,unilogo
 global fullscreen,sfx_volume,bgm_volume
+x=0
+from Main import *
 
 #SOME LISTS OF RGB COLORS
 white=[1,1,1]
@@ -245,14 +247,14 @@ def displaySettings():
 		glutReshapeWindow(WindowWidth, WindowHeight)
 	bSound1.set_volume(.01*sfx_volume)
 	bSound2.set_volume(.01*sfx_volume)
-	NewGameSound.set_volume(0.1*sfx_volume)
+	NewGameSound.set_volume(0.01*sfx_volume)
 	bgm.set_volume(.01*bgm_volume)
 	zombieCounter+=1
 	glutSwapBuffers()
 
 
 def displayLoading():
-	global background_id,menuimage,bColor,bSize,white,red,blue,t
+	global background_id,menuimage,bColor,bSize,white,red,blue,t,x
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glLoadIdentity()
 	if t<1:
@@ -260,6 +262,8 @@ def displayLoading():
 		t+=0.02
 	glBindTexture(GL_TEXTURE_2D, background_id[7])
 	glCallList(menuimage)
+	if t>1:
+		x=1
 	glutSwapBuffers()
 	if fullscreen:
 		glutFullScreen()
@@ -551,6 +555,8 @@ def Timer(v):
 		displayLoading()
 	elif credits:
 		displayCredits()
+	if x:
+		main1()
 	glutTimerFunc(30,Timer,1)
 
 

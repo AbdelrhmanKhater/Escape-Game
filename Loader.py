@@ -119,6 +119,4 @@ class OBJ:
         #lDisable(GL_COLOR_MATERIAL)
         glDisable(GL_TEXTURE_2D)
         glEndList()
-        
-
 

@@ -44,6 +44,7 @@ class obje:
 			glTranslate(self.x-2.5,self.y,self.z)	
 		else:
 			glTranslate(self.x,self.y,self.z+2.5)
+			
 		if(self.doorRotation):
 			glRotate(-self.angle,0,1,0)
 		else:

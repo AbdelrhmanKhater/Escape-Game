@@ -1,3 +1,30 @@
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import * 
+def drawText(string, x, y):
+  glLineWidth(2)
+  glColor(1,1,0)  # Yellow Color
+
+  glTranslate(x,y,0)
+  glScale(0.0005,0.0005,1)
+  string = string.encode() # conversion from Unicode string to byte string
+  for c in string:
+    glutStrokeCharacter(GLUT_STROKE_ROMAN , c )   
+def Text(s):
+  glMatrixMode(GL_PROJECTION)
+  glPushMatrix()
+  glLoadIdentity()
+  glOrtho(-1,1,-1,1,-1,1)
+  glMatrixMode(GL_MODELVIEW)
+  glPushMatrix()
+  glLoadIdentity()
+  glDisable(GL_LIGHTING)
+  drawText(s, -0.2,0)
+  glEnable(GL_LIGHTING)
+  glMatrixMode(GL_PROJECTION)
+  glPopMatrix()
+  glMatrixMode(GL_MODELVIEW)
+  glPopMatrix()
 #calculate the collision with walls and objects 
 def collision(player,vertex,lisOBJ,lisDoors):
   for i in range (0,len(vertex)-1,2):
@@ -38,8 +65,8 @@ def near(player,lisTools,lisDoors,keyState):
     typ=lisDoors[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2+(player.y-player.tall-0.5-target.y)**2)**0.5
     if(dist<target.radius+0.5):
-      print("near from ",typ,'\n',"press E to use")
-      if(keyState[ord('e')]==1):
+      Text("near from "+typ+'\n'+"press E to use")
+      if(keyState[ord('e')]):
         if not target.doorKey:
           print("u need the key to open the ",typ)
           return True

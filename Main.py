@@ -53,7 +53,7 @@ lisSpecialDoors=[]
 lisHouse=[]
 #all keyboards buttons have value 0 if no button pressed
 keyState=[0 for i in range(0,256)]
-jum=0
+
 
 #30ms per frame
 time_interval=30
@@ -74,7 +74,7 @@ def init():
 	glLightfv(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1.0])
 	glDisable(GL_COLOR_MATERIAL)
 	glEnable(GL_DEPTH_TEST)
-	glShadeModel(GL_SMOOTH)
+	#glShadeModel(GL_SMOOTH)
 	glEnable(GL_BLEND)
 	glutIgnoreKeyRepeat( GL_TRUE )
 	if(window_full_screen):
@@ -180,19 +180,18 @@ def display():
 
 	glLoadIdentity()
 	glLightfv(GL_LIGHT1, GL_POSITION,  (0, 999, 0, 0))
-	glLoadIdentity()
 
-	glTranslate(player1.x-sin(player1.theta), player1.y+sin(player1.thetaUp), player1.z+cos(player1.theta))
-	glutWireSphere(0.01,10,10)
 	
 	#display all texture in the world (like sky)
 	glDisable(GL_COLOR_MATERIAL)
 
 	for i in range(len(lisTexture)):
 		glLoadIdentity()
+		glColor(1,1,1)
 		glDisable(GL_LIGHTING)
 		lisTexture[i].disp()
 		glEnable(GL_LIGHTING)
+
 	for i in range(len(lisHouse)):
 		glLoadIdentity()
 		lisHouse[i].disp()
@@ -212,6 +211,7 @@ def display():
 		lisZombies[i].walk(player1)
 		#if(lisZombies[i].criticalHit()==False):
 			#lisZombies[i].hit()
+
 	for i in range(len(lisSpecialDoors)):
 		glLoadIdentity()
 		lisSpecialDoors[i][0].dispDoor()
@@ -222,20 +222,47 @@ def display():
 				lisSpecialDoors[i][0].animation=1
 				lisSpecialDoors[i][0].radius=-1
 			else:
-				print("wrong pass")
+				Text("wrong pass")
+				
+
 
 	glLoadIdentity()
-	
 	draw_window(25.3,22.5,10.9,4.2)
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors)
 
+
+	
 	glutSwapBuffers()
 
 
 	#print(player1.x,player1.z)
 	#print((time.time()-t)*1000)
+def drawText(string, x, y):
+	glLineWidth(2)
+	glColor(1,1,0)  # Yellow Color
+
+	glTranslate(x,y,0)
+	glScale(0.0005,0.0005,1)
+	string = string.encode() # conversion from Unicode string to byte string
+	for c in string:
+		glutStrokeCharacter(GLUT_STROKE_ROMAN , c )		
+def Text(s):
+	glMatrixMode(GL_PROJECTION)
+	glPushMatrix()
+	glLoadIdentity()
+	glOrtho(-1,1,-1,1,-1,1)
+	glMatrixMode(GL_MODELVIEW)
+	glPushMatrix()
+	glLoadIdentity()
+	glDisable(GL_LIGHTING)
+	drawText(s, -0.2,0)
+	glEnable(GL_LIGHTING)
+	glMatrixMode(GL_PROJECTION)
+	glPopMatrix()
+	glMatrixMode(GL_MODELVIEW)
+	glPopMatrix()
 
 def displayPass():
 	s=input("enter the pass:")
@@ -248,7 +275,7 @@ def Timer(v):
 #call function if any key pressed 
 def keyDown(key,xx,yy):
 	global player1,jum,keyState
-	if(key==b" ") and jum==0:
+	if(key==b" "):
 		player1.jumping=1
 	keyState[ord(key.decode('unicode_escape'))]=1
 
@@ -317,7 +344,6 @@ def main():
 		alist1[i][1]=alist1[i][1]*5+4
 
 	
-	print(alist1)
 	Zlis=[]
 	G1lis=[]
 	G2lis=[]
@@ -345,7 +371,7 @@ def main():
 	G1lis=[OBJ(G1lis[i],False,"Models/Gun/") for i in range (len(G1lis))]
 
 
-	for i in range(1,11):#24
+	for i in range(1,15):#24
 		sr="Axe_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
@@ -409,7 +435,7 @@ def main():
 	
 	footSound=pygame.mixer.Sound("Sounds/FootStep.wav")
 	footSound.set_volume(sound_game)
-	mainSound.play(20)#play the mainSound 20 times 
+	mainSound.play(-1)#play the mainSound 20 times 
 
 
 

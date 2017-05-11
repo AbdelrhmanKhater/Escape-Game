@@ -37,7 +37,7 @@ class player:
 		self.i=0
 		self.lisOBJ=lisOBJ
 		self.t=0
-		self.currentTool=lisOBJ[0]
+		self.currentTool=lisOBJ[self.t]
 		self.tools=len(self.lisOBJ)
 		self.walkingAudio=0
 
@@ -163,7 +163,7 @@ class player:
 		Near=near(self,None,lisDoors,keyState)
 		if(self.playerMove):
 			if not self.walkingAudio:
-				self.footSound.play(100)
+				self.footSound.play(-1)
 				self.walkingAudio=1
 		else:
 			self.footSound.stop()

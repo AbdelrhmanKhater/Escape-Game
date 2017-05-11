@@ -55,9 +55,6 @@ class zombie:
 					self.i=0
 				self.CurrentOBJ=self.OBJ1 
 		glCallList(self.CurrentOBJ[self.i].gl_list)
-		glLoadIdentity()
-		glTranslate(self.x,self.y+7,self.z)
-		glutWireSphere(0.5,10,10)
 		if(self.animation==1):
 			self.i+=1
 
@@ -81,7 +78,7 @@ class zombie:
 	#make the zombie to walk toward the player
 	def walk(self,player):
 		self.rotate=atan((self.x-player.x)/(self.z-player.z))*180/3.14-90
-		if(self.animation==True):
+		if(self.animation):
 			if(self.x>player.x+0.1):
 				self.x-=0.1
 			elif(self.x<player.x-0.1):

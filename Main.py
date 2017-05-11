@@ -126,8 +126,7 @@ def axe(player,enemy):
 
 #Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
 def draw_window(x,y,z,scale,rot=0):
-	
-	
+
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	glRotate(rot,0,1,0)
@@ -150,11 +149,9 @@ def draw_window(x,y,z,scale,rot=0):
 	glDisable(GL_COLOR_MATERIAL)
 
 
-
 def display():
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 

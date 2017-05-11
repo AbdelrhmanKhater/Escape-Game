@@ -21,6 +21,7 @@ bColor=[white,white,white,white,white]
 #DISPLAY FLAGS
 intro=1
 main_menu=0
+menu_to_game=0
 game_mode=0
 settings=0
 credits=0
@@ -130,6 +131,7 @@ def displayIntro():
 		glBindTexture(GL_TEXTURE_2D, background_id[6])
 	elif introCounter>400 and introCounter<410: #SWITCH TO MENU SCREEN AFTER LAST LOGO
 		intro=0
+		t=1
 		main_menu=1
 		print("Error loc signal")
 	introCounter+=1
@@ -158,10 +160,10 @@ def displayIntro():
 	glutSwapBuffers()
 
 
-zombieCounter=0 #COUNTER FOR DISPLAYING THE ZOMBIE IMAGE WITHIN MENU SCREEN
+getRed,zombieCounter=1,0 #COUNTER FOR DISPLAYING THE ZOMBIE IMAGE WITHIN MENU SCREEN
 def displayMenu():
 	global background_id,menuimage,bColor,bSize,white,red,blue,zombieCounter,t
-	global current_W,current_H,introCounter,audioPlaying
+	global current_W,current_H,introCounter,audioPlaying,menu_to_game,getRed,game_mode,main_menu
 	if not audioPlaying:
 		audioPlaying=1
 		bgm.play(-1)
@@ -171,6 +173,11 @@ def displayMenu():
 	glLoadIdentity()
 	current_W=glutGet(GLUT_WINDOW_WIDTH) #GETTING CURRENT ACTUAL WIDTH AND HEIGHT IF WINDOW RESIZED
 	current_H=glutGet(GLUT_WINDOW_HEIGHT)
+
+	if getRed<=0.05:
+		glColor4f(1,0,0,t)
+		t-=0.02
+
 	if zombieCounter<120: #FLICKERING LAMP PHOTOS (TEXTURES) DURING 120 FRAMES
 		glBindTexture(GL_TEXTURE_2D, background_id[random.choice([0,0,0,0,0,0,0,0,0,1])]) #10% Dark
 	elif zombieCounter>120: #SHOW THE ZOMBIE FOR 10 FRAMES
@@ -179,11 +186,12 @@ def displayMenu():
 		zombieCounter=0
 	glCallList(menuimage) #CALLING THE GL.LIST TO APPLY THE SELECTED TEXTURE (PHOTO)
 	#WRITING DOWN OUR BUTTONS
-	drawText(bColor[0], "NEW GAME",	128, 345.6, bSize[0])
-	drawText(bColor[1], "LOAD GAME", 128, 288, bSize[1])
-	drawText(bColor[2], "SETTINGS", 128, 230.4, bSize[2])
-	drawText(bColor[3], "CREDITS", 	128, 172.8, bSize[3])
-	drawText(bColor[4], "EXIT", 	128, 115.2, bSize[4])
+	if not menu_to_game:
+		drawText(bColor[0], "NEW GAME",	128, 345.6, bSize[0])
+		drawText(bColor[1], "LOAD GAME", 128, 288, bSize[1])
+		drawText(bColor[2], "SETTINGS", 128, 230.4, bSize[2])
+		drawText(bColor[3], "CREDITS", 	128, 172.8, bSize[3])
+		drawText(bColor[4], "EXIT", 	128, 115.2, bSize[4])
 	glColor(1,1,1) #RESETTING THE COLOR TO WHITE TO NOT AFFECT THE TEXTURE DRAWN LATER
 	zombieCounter+=1
 	if fullscreen:
@@ -191,12 +199,23 @@ def displayMenu():
 	else:
 		glutPositionWindow(20,30)
 		glutReshapeWindow(WindowWidth, WindowHeight)
+
+	if menu_to_game:
+		glColor(1,getRed,getRed)
+		getRed-=0.03
+		if t<=0.05:
+			main_menu=0
+			menu_to_game=0
+			game_mode=1
+			glColor(1,1,1)
+			t=0
+			
 	glutSwapBuffers()
 
 #THE DISPLAY FOR THE SETTINGS SCREEN, SIMILAR TO MAIN MENU SCREEN
 def displaySettings():
 	global background_id,menuimage,bColor,bSize,white,red,blue,zombieCounter,t
-	global current_W,current_H,fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,bgm,bgm2
+	global current_W,current_H,fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,bgm,bgm2,NewGameSound
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glLoadIdentity()
 	current_W=glutGet(GLUT_WINDOW_WIDTH)
@@ -226,15 +245,19 @@ def displaySettings():
 		glutReshapeWindow(WindowWidth, WindowHeight)
 	bSound1.set_volume(.01*sfx_volume)
 	bSound2.set_volume(.01*sfx_volume)
+	NewGameSound.set_volume(0.1*sfx_volume)
 	bgm.set_volume(.01*bgm_volume)
 	zombieCounter+=1
 	glutSwapBuffers()
 
 
 def displayLoading():
-	global background_id,menuimage,bColor,bSize,white,red,blue
+	global background_id,menuimage,bColor,bSize,white,red,blue,t
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glLoadIdentity()
+	if t<1:
+		glColor4f(1,1,1,t)
+		t+=0.02
 	glBindTexture(GL_TEXTURE_2D, background_id[7])
 	glCallList(menuimage)
 	glutSwapBuffers()
@@ -347,15 +370,17 @@ def Mouse(x,y):
 def MouseClick(key,state,x,y):
 	global WindowHeight,WindowHeight,blue
 	global intro,introCounter,main_menu,game_mode,settings,credits,bColor,t,red
-	global fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,crdY
+	global fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,crdY,menu_to_game,NewGameSound
 
-	if main_menu:
+	if main_menu and not menu_to_game:
 		if bColor[0]==red:
 			if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
-				bSound2.play()
-				main_menu=0
+				#main_menu=0
 				settings=0
-				game_mode=1
+				if not menu_to_game:
+					bSound2.play()
+					NewGameSound.play()
+				menu_to_game=1
 		if bColor[1]==red:
 			if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
 				print("LOAD GAME")
@@ -406,7 +431,7 @@ def reshape(w,h): #RESHAPE FUNCTION TO FIX THE WINDOW SIZE, NOT USED CURRENTLY.
 
 def keys(key,x,y):
 	global intro,introCounter,main_menu,game_mode,settings,credits,bColor,t,red
-	global fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,crdY
+	global fullscreen,sfx_volume,bgm_volume,bSound1,bSound2,crdY,menu_to_game,NewGameSound
 	if intro:
 		if key==b'\x1b': #ESCAPE BUTTON \x1b
 			intro=0
@@ -416,13 +441,15 @@ def keys(key,x,y):
 			introCounter+=100-(introCounter%100)
 			t=0
 
-	if main_menu:
+	if main_menu and not menu_to_game:
 		if key==b'\r': #ENTER BUTTON \r
-			bSound2.play()
 			if bColor[0]==red:
-				main_menu=0
+				#main_menu=0
 				settings=0
-				game_mode=1
+				if not menu_to_game:
+					bSound2.play()
+					NewGameSound.play()
+				menu_to_game=1
 			if bColor[1]==red:
 				print("LOAD GAME")
 			if bColor[2]==red:
@@ -459,9 +486,9 @@ def keys(key,x,y):
 currentButton=0 #CURRENT BUTTON SELECTED BY KEYBOARD
 upArrow,downArrow=101,103 #VALUES FOR UP AND DOWN ARROW
 def spKeys(key,x,y):
-	global bColor,currentButton,upArrow,downArrow,main_menu,settings,bSound1,bSound2
+	global bColor,currentButton,upArrow,downArrow,main_menu,settings,bSound1,bSound2,menu_to_game
 
-	if main_menu:
+	if main_menu and not menu_to_game:
 
 		if key==upArrow:
 			bSound1.play()
@@ -529,10 +556,11 @@ def Timer(v):
 
 def main():
 	global WindowHeight,WindowWidth,intro,main_menu,current_W,current_H,fullscreen
-	global bSound1,bSound2,bgm_volume,sfx_volume,bgm,bgm2
+	global bSound1,bSound2,bgm_volume,sfx_volume,bgm,bgm2,NewGameSound
 	glutInit()
 	fullscreen=0
 	pygame.mixer.init()
+	NewGameSound=pygame.mixer.Sound("Menu\Audio\FarScream.wav")
 	bSound1=pygame.mixer.Sound("Menu\Audio\ButtonScroll.wav")
 	bSound2=pygame.mixer.Sound("Menu\Audio\ButtonSelect.wav")
 	bgm=pygame.mixer.Sound("Menu\Audio\mainSound.wav")

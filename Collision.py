@@ -3,9 +3,9 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import * 
 def drawText(string, x, y):
   glLineWidth(2)
-  glColor(1,1,0)  # Yellow Color
+  glColor(1,1,1)  # Yellow Color
 
-  glTranslate(x,y,0)
+  glTranslate(x-len(string)/50,y,0)
   glScale(0.0005,0.0005,1)
   string = string.encode() # conversion from Unicode string to byte string
   for c in string:
@@ -19,7 +19,7 @@ def Text(s):
   glPushMatrix()
   glLoadIdentity()
   glDisable(GL_LIGHTING)
-  drawText(s, -0.2,0)
+  drawText(s, 0,0)
   glEnable(GL_LIGHTING)
   glMatrixMode(GL_PROJECTION)
   glPopMatrix()
@@ -31,18 +31,21 @@ def collision(player,vertex,lisOBJ,lisDoors):
     if vertex[i][0]==vertex[i+1][0] and player.z>=min(vertex[i][1],vertex[i+1][1]) and player.z<=max(vertex[i][1],vertex[i+1][1]):
       distance= abs(player.x-vertex[i][0])
       if distance<1:
-        return "wall"
+        Text("collieding with wall")
+        return True
     elif vertex[i][1]==vertex[i+1][1] and player.x>=min(vertex[i][0],vertex[i+1][0]) and player.x<=max(vertex[i][0],vertex[i+1][0]):
       distance= abs(player.z-vertex[i][1])
       if distance<1:
-        return "wall"
+        Text("collieding with wall")
+        return True
 
   for i in range(len(lisOBJ)):
     target=lisOBJ[i][0]
     typ=lisOBJ[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2 +(player.y-player.tall-target.y)**2)**0.5
     if(dist<target.radius):
-      return typ
+      Text("collieding woth "+typ)
+      return True
 
   for i in range(len(lisDoors)):
     target=lisDoors[i][0]
@@ -52,7 +55,8 @@ def collision(player,vertex,lisOBJ,lisDoors):
     typ=lisDoors[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2 +(player.y-player.tall-1-target.y)**2)**0.5
     if(dist<target.radius):
-      return typ
+
+      return True
 
   return False  
 
@@ -65,12 +69,11 @@ def near(player,lisTools,lisDoors,keyState):
     typ=lisDoors[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2+(player.y-player.tall-0.5-target.y)**2)**0.5
     if(dist<target.radius+0.5):
-      Text("near from "+typ+'\n'+"press E to use")
+      Text("press E to "+typ)
       if(keyState[ord('e')]):
         if not target.doorKey:
-          print("u need the key to open the ",typ)
           return True
-        elif typ in ['Tank','FlashLight','Gun','Car','Door']:
+        else:
           target.animation=1
           target.radius=-1
           break    

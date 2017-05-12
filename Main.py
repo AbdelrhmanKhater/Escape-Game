@@ -207,7 +207,7 @@ def display():
 		lisZombies[i].disp()
 		lisZombies[i].walk(player1)
 		#if(lisZombies[i].criticalHit()==False):
-			#lisZombies[i].hit()
+			#lisZombies[i7].hit()
 
 	for i in range(len(lisSpecialDoors)):
 		glLoadIdentity()
@@ -227,20 +227,19 @@ def display():
 	draw_window(25.3,22.5,10.9,4.2)
 
 	world1.disp()
-	player1.move(keyState,alist1,lisObjs,lisDoors)
-
+	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
+	#Text("HELLO")
 
 	
 	glutSwapBuffers()
 
 
-	#print(player1.x,player1.z)
-	#print((time.time()-t)*1000)
+	print(player1.x,player1.z)
+	print((time.time()-t)*1000)
 def drawText(string, x, y):
 	glLineWidth(2)
-	glColor(1,1,0)  # Yellow Color
-
-	glTranslate(x,y,0)
+	glColor(0,0,0)  # Yellow Color
+	glTranslate(x-len(string)/50,y,0)
 	glScale(0.0005,0.0005,1)
 	string = string.encode() # conversion from Unicode string to byte string
 	for c in string:
@@ -254,7 +253,7 @@ def Text(s):
 	glPushMatrix()
 	glLoadIdentity()
 	glDisable(GL_LIGHTING)
-	drawText(s, -0.2,0)
+	drawText(s, 0,0)
 	glEnable(GL_LIGHTING)
 	glMatrixMode(GL_PROJECTION)
 	glPopMatrix()
@@ -400,25 +399,25 @@ def main1():
 	lisTexture.append(texture('nightsky_bk.jpg',[[1000,1000,-1000],[1000,-1000,-1000],[-1000,-1000,-1000],[-1000,1000,-1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_rt.jpg',[[-1000,1000,-1000],[-1000,-1000,-1000],[-1000,-1000,1000],[-1000,1000,1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 
-	world1=world('world.png',-1000,-1000)
-	world1.render(8,500)
+	world1=world('world.png',-500,-500)
+	world1.render(4,100)
 	yHouse=world1.height(26,5)
 	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
 
 
 	Dlis=[OBJ("Door1.obj",False,"Models/Door1/")]
 	#first door
-	lisDoors.append([obje(Dlis,0,[32.5,world1.height(32.5,4),4],3,0.05,0,0,1),"Door"])
+	lisDoors.append([obje(Dlis,0,[32.5,world1.height(32.5,4),4],3,0.05,0,0,1),"open the Door"])
 	#first floor doors
-	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4),14],3,0.05,90,0,1),"Door"])
-	lisSpecialDoors.append([obje(Dlis,0,[90,world1.height(32.5,4),14],3,0.05,90,1,0),"Door","HELP!"])
-	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),11.5],3,0.05,90,0,1),"Door"])
-	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),26.5],3,0.05,90,0,1),"Door"])
-	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),41.5],3,0.05,90,0,1),"Door"])
+	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4),14],3,0.05,90,0,1),"open the Door"])
+	lisSpecialDoors.append([obje(Dlis,0,[90,world1.height(32.5,4),14],3,0.05,90,1,0),"write the password","HELP!"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),11.5],3,0.05,90,0,1),"open the Door"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),26.5],3,0.05,90,0,1),"open the Door"])
+	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),41.5],3,0.05,90,0,1),"open the Door"])
 	#second floor doors
-	lisSpecialDoors.append([obje(Dlis,0,[100,world1.height(32.5,4)+15,41.5],3,0.05,90,0,0),"Door","Done"])
-	lisDoors.append([obje(Dlis,0,[90,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
-	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"Door"])
+	lisSpecialDoors.append([obje(Dlis,0,[100,world1.height(32.5,4)+15,41.5],3,0.05,90,0,0),"write the password","Done"])
+	lisDoors.append([obje(Dlis,0,[90,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"open the Door"])
+	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"open the Door"])
 
 
 	#create some sound
@@ -452,3 +451,10 @@ def main1():
 	print((time.time()-t)*1000)#print the time needed to load 
 	glutMainLoop()
 
+if __name__=="__main__":
+	glutInit()
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+	glutInitWindowSize(1366,768)
+	glutInitWindowPosition(0,0)
+	glutCreateWindow(b"WAR")
+	main1()

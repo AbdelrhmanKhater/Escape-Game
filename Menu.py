@@ -47,8 +47,6 @@ def texInit(name,id):
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,imgdata)
 	#ASSING THE IMAGE TO A 2D TEXTURE WITH THE GIVEN SPECIFICATIONS ^
 
-
-
 def init():
 	global background_id,menuimage,textsize,unilogo
 	glClearColor(0,0,0,0)
@@ -249,6 +247,16 @@ def displaySettings():
 	bSound2.set_volume(.01*sfx_volume)
 	NewGameSound.set_volume(0.01*sfx_volume)
 	bgm.set_volume(.01*bgm_volume)
+	opfile=open('Option/op.in','r')
+	setOp=opfile.read().split()
+	setOp[8]=str(fullscreen)
+	setOp[14]=str(bgm_volume)
+	setOp[17]=str(sfx_volume)
+	opfile=open('Option/op.in','w')
+	for item in setOp:
+		opfile.write(str(item))
+		opfile.write(" ")
+	opfile.close()
 	zombieCounter+=1
 	glutSwapBuffers()
 
@@ -264,6 +272,7 @@ def displayLoading():
 	glCallList(menuimage)
 	if t>1:
 		gameplay=1
+		pygame.mixer.fadeout(10000)
 	glutSwapBuffers()
 	if fullscreen:
 		glutFullScreen()
@@ -544,7 +553,7 @@ def spKeys(key,x,y):
 			bSize[currentButton]=0.4
 
 def Timer(v):
-	global intro,main_menu,loadscreen,credits
+	global intro,main_menu,loadscreen,credits,background_id,menuimage
 	if intro:
 		displayIntro()			
 	elif main_menu:
@@ -572,6 +581,14 @@ def main():
 	bgm=pygame.mixer.Sound("Menu\Audio\mainSound.wav")
 	bgm2=pygame.mixer.Sound("Menu\Audio\Lamp.wav")
 	
+	opfile=open('Option/op.in')
+	setOp=opfile.read().split()
+	fullscreen=int(setOp[8])
+	bgm_volume=int(setOp[14])
+	sfx_volume=int(setOp[17])
+	opfile.close()
+
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
 	glutInitWindowSize(WindowWidth,WindowHeight)
 

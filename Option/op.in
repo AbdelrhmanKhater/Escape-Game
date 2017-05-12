@@ -1,6 +1,1 @@
-Width = 1366
-Height = 768
-Fullscreen = 0
-FOVY = 45
-MusicSound = 0.1
-GameSound = 1
+Width = 1280 Height = 720 Fullscreen = 1 FOVY = 45 MusicSound = 80 GameSound = 100 

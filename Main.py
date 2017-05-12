@@ -365,7 +365,9 @@ def display():
 				lisSpecialDoors[i][0].animation=1
 				lisSpecialDoors[i][0].radius=-1
 			else:
-				Text("wrong pass")
+				goOrtho()
+				drawText("wrong pass")
+				backPrespective()
 				
 
 
@@ -375,7 +377,13 @@ def display():
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
 
-	Text(str(int(1/(time.time()-t))),-0.96,0.92,0.0005,2,1,0,0)
+	goOrtho()
+	drawText(str(int(1/(time.time()-t))),-0.96,0.92,0.0005,2,1,0,0)
+	backPrespective()
+	goOrtho()
+	drawCursor()
+	backPrespective()
+
 	glutSwapBuffers()
 	if fullscreen:
 		glutFullScreen()
@@ -383,8 +391,7 @@ def display():
 		glutPositionWindow(20,30)
 		glutReshapeWindow(window_width, window_height)
 	#print(player1.x,player1.z)
-	
-	print(str(int((1/(time.time()-t)+LastFps)/2)))
+
 	LastFps=int((1/(time.time()-t)+LastFps)/2)
 	#print((time.time()-t)*1000)
 
@@ -398,6 +405,20 @@ def drawTextB(lis, string,x,y,textsize=0.35):
 	for char in string:
 		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, char)
 
+
+def drawCursor():
+	ratio=window_width/window_height
+	glLineWidth(1)
+	glColor(1,1,1)
+	glLoadIdentity()
+	glBegin(GL_LINES)
+	glVertex(0.04/ratio,0,0)
+	glVertex(-0.04/ratio,0,0)
+	glVertex(0,0.04,0)
+	glVertex(0,-0.04,0)
+	glEnd()
+
+
 def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 	glLineWidth(w)
 	glColor(r,g,b)  # Yellow Color
@@ -408,7 +429,8 @@ def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 		glutStrokeCharacter(GLUT_STROKE_ROMAN , c )  
 
 
-def Text(s,x=0,y=0,scale=0.0005,w=2,r=0,g=0,b=0):
+def goOrtho():
+
 	glMatrixMode(GL_PROJECTION)
 	glPushMatrix()
 	glLoadIdentity()
@@ -417,7 +439,9 @@ def Text(s,x=0,y=0,scale=0.0005,w=2,r=0,g=0,b=0):
 	glPushMatrix()
 	glLoadIdentity()
 	glDisable(GL_LIGHTING)
-	drawText(s,x,y,scale,w,r,g,b)
+
+def backPrespective():
+
 	glEnable(GL_LIGHTING)
 	glMatrixMode(GL_PROJECTION)
 	glPopMatrix()
@@ -615,8 +639,8 @@ def mouseMove(x,y):
 		if(x>window_width-2):
 			glutWarpPointer(2,y)
 
-		player1.theta=(PI*x)/683-PI
-		player1.thetaUp=-(PI*y)/768+PI/2
+		player1.theta=(PI*x)/(window_width/2)-PI
+		player1.thetaUp=-(PI*y)/(window_height)+PI/2
 
 #get the mouse click 
 def mouseShoot(key,state,x,y):

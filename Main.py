@@ -12,7 +12,7 @@ from World import *
 #some extra libraries
 from math import *
 import sys, pygame,os,numpy,time
-
+#comen
 #variables we need
 global player1,fovy,window_width,window_height,fullscreen,fireSound,windSound,zombieSound,footSound,world1,yHouse
 global paused,sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
@@ -278,9 +278,9 @@ def draw_window(x,y,z,scale,rot=0):
 
 	glDisable(GL_COLOR_MATERIAL)
 
-
+LastFps=0
 def display():
-	global houseAudio,worldAudio,houseMusic,windSound
+	global houseAudio,worldAudio,houseMusic,windSound,LastFps
 	global current_H,current_W
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
@@ -296,6 +296,7 @@ def display():
 	current_W=glutGet(GLUT_WINDOW_WIDTH)
 	current_H=glutGet(GLUT_WINDOW_HEIGHT)
 
+	glDisable(GL_LIGHT0)
 	glLoadIdentity()
 	player1.displayTool()
 	if(player1.x>90 and player1.x<95 and player1.z>19 and player1.z<37):
@@ -309,6 +310,8 @@ def display():
 			worldAudio=1
 			houseAudio=0
 	else:
+		if keyState[ord("f")]:
+			glEnable(GL_LIGHT0)
 		player1.jump(yHouse)
 		print("in the house")
 		if not houseAudio:
@@ -371,16 +374,19 @@ def display():
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
-	#Text("HELLO")
 
+	Text(str(int(1/(time.time()-t))),-0.96,0.92,0.0005,2,1,0,0)
 	glutSwapBuffers()
 	if fullscreen:
 		glutFullScreen()
 	else:
 		glutPositionWindow(20,30)
 		glutReshapeWindow(window_width, window_height)
-	print(player1.x,player1.z)
-	print((time.time()-t)*1000)
+	#print(player1.x,player1.z)
+	
+	print(str(int((1/(time.time()-t)+LastFps)/2)))
+	LastFps=int((1/(time.time()-t)+LastFps)/2)
+	#print((time.time()-t)*1000)
 
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
@@ -402,7 +408,7 @@ def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 		glutStrokeCharacter(GLUT_STROKE_ROMAN , c )		
 
 
-def Text(s):
+def Text(s,x=0,y=0,scale=0.0005,w=2,r=0,g=0,b=0):
 	glMatrixMode(GL_PROJECTION)
 	glPushMatrix()
 	glLoadIdentity()
@@ -411,7 +417,7 @@ def Text(s):
 	glPushMatrix()
 	glLoadIdentity()
 	glDisable(GL_LIGHTING)
-	drawText(s, 0,0)
+	drawText(s,x,y,scale,w,r,g,b)
 	glEnable(GL_LIGHTING)
 	glMatrixMode(GL_PROJECTION)
 	glPopMatrix()

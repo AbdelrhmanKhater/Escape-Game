@@ -1,6 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import * 
+
 def drawText(string, x, y):
   glLineWidth(2)
   glColor(1,1,1)  # Yellow Color

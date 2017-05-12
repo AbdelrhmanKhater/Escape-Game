@@ -39,7 +39,7 @@ class obje:
 		if(self.animation==1):
 			self.i+=1
 
-	def dispDoor(self):
+	def dispDoor(self,audio,played=0):
 		if not self.rotate:
 			glTranslate(self.x-2.5,self.y,self.z)	
 		else:
@@ -57,6 +57,12 @@ class obje:
 		glScale(self.scale,self.scale,self.scale)
 		glCallList(self.OBJ[0].gl_list)
 		if self.animation and self.angle>-120:
+			if not played:
+				audio.play()
+				played=1
+			if played==1:
+				audio.fadeout(3000)
+				played=2
 			self.angle-=2
 
 

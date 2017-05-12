@@ -15,7 +15,7 @@ import sys, pygame,os,numpy,time
 
 #variables we need
 global player1,fovy,window_width,window_height,window_full_screen,fireSound,windSound,zombieSound,footSound,world1,yHouse
-global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorOpening,doorSlam
+global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
 alist1=[#horizontal walls
 		[0,0],[1,0],
 		[2,0],[18,0],
@@ -207,7 +207,7 @@ def display():
 		lisObjs[i][0].disp()
 	for i in range(len(lisDoors)):
 		glLoadIdentity()
-		lisDoors[i][0].dispDoor()
+		lisDoors[i][0].dispDoor(doorSound)
 	#display all zombies,make them walk.
 	for i in range(len(lisZombies)):
 		lisZombies[i].height(world1.height(lisZombies[i].x,lisZombies[i].z))
@@ -220,7 +220,7 @@ def display():
 
 	for i in range(len(lisSpecialDoors)):
 		glLoadIdentity()
-		lisSpecialDoors[i][0].dispDoor()
+		lisSpecialDoors[i][0].dispDoor(doorSound)
 		Epressed=near(player1,None,lisSpecialDoors,keyState)
 		if(Epressed):
 			Pass=displayPass()
@@ -335,7 +335,7 @@ def main1():
 	t=time.time()#to calculate time needed to load the game
 
 	global player1,lisTexture,fireSound,windSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
-	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorOpening,doorSlam
+	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
 	pygame.init()
 	setting()
 	glutInit()

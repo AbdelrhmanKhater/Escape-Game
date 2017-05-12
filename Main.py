@@ -14,9 +14,8 @@ from math import *
 import sys, pygame,os,numpy,time
 
 #variables we need
-global player1,fovy,window_width,window_height,window_full_screen,fireSound,mainSound,zombieSound,footSound,world1,yHouse
-global sound_BGM,sound_game
-
+global player1,fovy,window_width,window_height,window_full_screen,fireSound,windSound,zombieSound,footSound,world1,yHouse
+global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorOpening,doorSlam
 alist1=[#horizontal walls
 		[0,0],[1,0],
 		[2,0],[18,0],
@@ -58,6 +57,7 @@ keyState=[0 for i in range(0,256)]
 #30ms per frame
 time_interval=30
 PI=3.14159265359
+
 
 #intialization of opengl
 def init1():
@@ -141,7 +141,7 @@ def draw_window(x,y,z,scale,rot=0):
 	glVertex(0,1.8*scale,2.2*scale)
 	glVertex(0,1.8*scale,0)
 	glEnd()
-	#glColor(.15,.15,.15) #IF YOU WANT TO MAKE THE GAME MORE DARK, TRY THIS
+	#glColor(0,0,0) #IF YOU WANT TO MAKE THE GAME MORE DARK, TRY THIS
 	glDisable(GL_BLEND)
 	glEnable(GL_LIGHTING)
 	#glColor4f(1,1,1,0)
@@ -150,12 +150,10 @@ def draw_window(x,y,z,scale,rot=0):
 
 
 def display():
+	global houseAudio,worldAudio,houseMusic,windSound
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-
-
 	player1.updateCamera()
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
@@ -171,9 +169,20 @@ def display():
 	if(not(player1.x>25 and player1.x<115 and player1.z>4 and player1.z<49)):
 		player1.jump(world1.height(player1.x,player1.z))
 		yHouse=world1.height(player1.x,player1.z)
+		if not worldAudio:
+			houseMusic.fadeout(3000)
+			windSound.play(loops=-1,fade_ms=3000)
+			worldAudio=1
+			houseAudio=0
 	else:
 		player1.jump(yHouse)
 		print("in the house")
+		if not houseAudio:
+			windSound.fadeout(3000)
+			houseMusic.play(loops=-1,fade_ms=3000)
+			worldAudio=0
+			houseAudio=1
+
 
 	glLoadIdentity()
 	glLightfv(GL_LIGHT1, GL_POSITION,  (0, 999, 0, 0))
@@ -264,8 +273,8 @@ def displayPass():
 	s=input("enter the pass:")
 	return s
 
-def Timer(v): 
-	display() 
+def Timer(v):
+	display()
 	glutTimerFunc(time_interval,Timer,1)
 
 #call function if any key pressed 
@@ -325,7 +334,8 @@ def mouseShoot(key,state,x,y):
 def main1():
 	t=time.time()#to calculate time needed to load the game
 
-	global player1,lisTexture,fireSound,mainSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
+	global player1,lisTexture,fireSound,windSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
+	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorOpening,doorSlam
 	pygame.init()
 	setting()
 	glutInit()
@@ -422,18 +432,28 @@ def main1():
 
 	#create some sound
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")
-	fireSound.set_volume(sound_game)
+	fireSound.set_volume(0.1*sound_game)
 
-	mainSound=pygame.mixer.Sound("Sounds/mainSound.wav")
-	mainSound.set_volume(sound_BGM)
+	windSound=pygame.mixer.Sound("Sounds/Wind.wav")
+	windSound.set_volume(0.04*sound_BGM)
+	windSound.play(-1)
+	worldAudio=1
+
+	houseMusic=pygame.mixer.Sound("Sounds/Nightmare.wav")
+	houseMusic.set_volume(0.02*sound_BGM)
+	houseAudio=0
 
 	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
-	
+	zombieSound.set_volume(0.1*sound_game)
+
 	footSound=pygame.mixer.Sound("Sounds/FootStep.wav")
-	footSound.set_volume(sound_game)
-	mainSound.play(-1)#play the mainSound 20 times 
+	footSound.set_volume(0.1*sound_game)
 
+	doorSound=pygame.mixer.Sound("Sounds/DoorOpen.wav")
+	doorSound.set_volume(0.1*sound_game)
 
+	doorSlam=pygame.mixer.Sound("Sounds/DoorSlam.wav")
+	doorSlam.set_volume(0.1*sound_game)
 
 
 

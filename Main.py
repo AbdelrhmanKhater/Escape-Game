@@ -313,7 +313,7 @@ def display():
 		if keyState[ord("f")]:
 			glEnable(GL_LIGHT0)
 		player1.jump(yHouse)
-		print("in the house")
+		
 		if not houseAudio:
 			windSound.fadeout(3000)
 			houseMusic.play(loops=-1,fade_ms=3000)
@@ -391,7 +391,7 @@ def display():
 		glutReshapeWindow(window_width, window_height)
 	#print(player1.x,player1.z)
 
-	print(str(int((1/(time.time()-t)+LastFps)/2)))
+
 	LastFps=int((1/(time.time()-t)+LastFps)/2)
 	#print((time.time()-t)*1000)
 
@@ -637,7 +637,7 @@ def mouseMove(x,y):
 			glutWarpPointer(2,y)
 
 		player1.theta=(PI*x)/(window_width/2)-PI
-		player1.thetaUp=-(PI*y)/(window_height/2)+PI/2
+		player1.thetaUp=-(PI*y)/(window_height)+PI/2
 
 #get the mouse click 
 def mouseShoot(key,state,x,y):
@@ -700,6 +700,7 @@ def mouseShoot(key,state,x,y):
 				fireSound.play()
 				for i in range(len(lisZombies)):
 					if(bullet(player1,lisZombies[i]) ):
+						lisZombies[i].zombieSound.fadeout(20000)
 						del lisZombies[i]#die
 						break
 			else:
@@ -745,7 +746,7 @@ def main1():
 	M1lis=[]
 	M2lis=[]
 
-	'''for i in range(1,115,2):#115
+	for i in range(1,115,2):#115
 		sr="Monster_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
@@ -753,7 +754,7 @@ def main1():
 		sr+=ss+str(i)+".obj"
 
 		Zlis.append(sr)
-	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]'''
+	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]
 
 	for i in range(1,11):#11
 		sr="Gun_"
@@ -777,10 +778,12 @@ def main1():
 	M1lis=[OBJ(M1lis[i],False,"Models/Axe/") for i in range (len(M1lis))]
 
 	
+	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
+	zombieSound.set_volume(0.1*sound_game)
 
 	#create zombies
-	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-30,0,-30],30,0.5,-90))
-	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[10,0,10],30,0.5,-90))
+	lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[30,0,0],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,50],30,0.5,-90))
@@ -832,9 +835,7 @@ def main1():
 	houseMusic.set_volume(0.02*sound_BGM)
 	houseAudio=0
 
-	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
-	zombieSound.set_volume(0.1*sound_game)
-
+	
 	footSound=pygame.mixer.Sound("Sounds/FootStep.wav")
 	footSound.set_volume(0.1*sound_game)
 

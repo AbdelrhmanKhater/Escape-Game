@@ -14,8 +14,20 @@ from math import *
 import sys, pygame,os,numpy,time
 
 #variables we need
-global player1,fovy,window_width,window_height,window_full_screen,fireSound,windSound,zombieSound,footSound,world1,yHouse
-global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
+global player1,fovy,window_width,window_height,fullscreen,fireSound,windSound,zombieSound,footSound,world1,yHouse
+global paused,sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
+
+paused=0
+paused_settings=0
+
+white=[1,1,1]
+blue=[1,0,0]
+blue=[0,0,1]
+green=[0,1,0]
+bSize=[0.35,0.35,0.35,0.35,0.35]
+bColor=[white,white,white,white,white]
+
+
 alist1=[#horizontal walls
 		[0,0],[1,0],
 		[2,0],[18,0],
@@ -58,9 +70,26 @@ keyState=[0 for i in range(0,256)]
 time_interval=30
 PI=3.14159265359
 
-
+pauseimage_id,pauseimage=0,0
 #intialization of opengl
+
+def texInit(name,id):
+	global pauseimage_id,pauseimage
+	imgload=pygame.image.load(name) #LOAD IMAGE
+	imgdata=pygame.image.tostring(imgload,"RGB",1) #CONVERT IMAGE TO RAW DATA
+	width=imgload.get_width()
+	height=imgload.get_height()
+	glBindTexture(GL_TEXTURE_2D, pauseimage_id[id]) #GIVE IT AN ID THEN SET PARAMETERS
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,imgdata)
+	#ASSING THE IMAGE TO A 2D TEXTURE WITH THE GIVEN SPECIFICATIONS ^
+
+
 def init1():
+	global pauseimage_id,pauseimage
 	glClearColor(1,1,1,0)
 	#glutSetCursor(GLUT_CURSOR_NONE)
 	glEnable(GL_LIGHTING)
@@ -73,23 +102,125 @@ def init1():
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, [0.01, 0.01, 0.01, 1.0])
 	glLightfv(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1.0])
 	glDisable(GL_COLOR_MATERIAL)
+
+	pauseimage_id=glGenTextures(2)
+	texInit("Menu\Images\Paused.jpg",0)
+	pauseimage=glGenLists(1) #GENERATE A GL.LIST THAT APPLIES ANY GIVEN TEXTURE
+	glNewList(pauseimage,GL_COMPILE) #COMPLIE THE LIST -- BEGIN
+	glEnable(GL_TEXTURE_2D) 
+	glBegin(GL_QUADS) #DRAWING TEXTURES ON QUADS
+	glTexCoord(0,0)
+	glVertex2d(0,0)
+	glTexCoord(1,0)
+	glVertex2d(1280,0)
+	glTexCoord(1,1)
+	glVertex2d(1280,720)
+	glTexCoord(0,1)
+	glVertex2d(0,720)
+	glEnd() #END DRAWING
+	glDisable(GL_TEXTURE_2D)
+	glEndList() #END THE LIST
+
 	glEnable(GL_DEPTH_TEST)
 	#glShadeModel(GL_SMOOTH)
 	glEnable(GL_BLEND)
 	glutIgnoreKeyRepeat( GL_TRUE )
-	if(window_full_screen):
+	if(fullscreen):
 		glutFullScreen()
 
 #read setting from file like (the resolution , fovy etc...)
 def setting():
-	global window_width,window_height,window_full_screen,fovy,sound_BGM,sound_game
+	global window_width,window_height,fullscreen,fovy,sound_BGM,sound_game
 	f= open('Option/op.in').read().split()
 	window_width=int(f[2])
 	window_height=int(f[5])
-	window_full_screen=int(f[8])
+	fullscreen=int(f[8])
 	fovy=int(f[11])
-	sound_BGM=float(f[14])
-	sound_game=float(f[17])
+	sound_BGM=int(f[14])
+	sound_game=int(f[17])
+
+
+def displayPause():
+	global current_H,current_W,white,blue,blue,bColor,bSize
+	current_W=glutGet(GLUT_WINDOW_WIDTH)
+	current_H=glutGet(GLUT_WINDOW_HEIGHT)
+	glClearColor(0,0,0,0)
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	glOrtho(0,1280,0,720,-3,3)
+	glMatrixMode(GL_MODELVIEW)
+	glLoadIdentity()
+	glBindTexture(GL_TEXTURE_2D, pauseimage_id[0])
+	glCallList(pauseimage)
+	drawTextB(bColor[0], "SAVE GAME",	128, 345.6, bSize[0])
+	drawTextB(bColor[1], "LOAD GAME", 128, 288, bSize[1])
+	drawTextB(bColor[2], "SETTINGS", 128, 230.4, bSize[2])
+	drawTextB(bColor[3], "EXIT", 	128, 172.8, bSize[3])
+	glColor(1,1,1)
+	if fullscreen:
+		glutFullScreen()
+	else:
+		glutPositionWindow(20,30)
+		glutReshapeWindow(window_width, window_height)
+	glutSwapBuffers()
+
+def displaySettings():
+	global bColor,bSize,white,blue,blue
+	global current_W,current_H,fullscreen,sound_game,sound_BGM,bSound1,bSound2
+	glClearColor(0,0,0,0)
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	glOrtho(0,1280,0,720,-3,3)
+	glMatrixMode(GL_MODELVIEW)
+	glLoadIdentity()
+	glBindTexture(GL_TEXTURE_2D, pauseimage_id[0])
+	glCallList(pauseimage)
+
+	current_W=glutGet(GLUT_WINDOW_WIDTH)
+	current_H=glutGet(GLUT_WINDOW_HEIGHT)
+	glBindTexture(GL_TEXTURE_2D, pauseimage_id[0])
+	glCallList(pauseimage)
+
+	drawTextB([.5,.5,.6], "SETTINGS",	128, 450, 0.3)
+	drawTextB([.4,.4,.4], "GRAHPICS",	128, 345.6, 0.4)
+	if fullscreen:
+		drawTextB(bColor[1], "FULLSCREEN", 128, 288, bSize[1])
+	else:
+		drawTextB(bColor[1], "WINDOWED", 128, 288, bSize[1])
+	drawTextB(bColor[2], "MUSIC: "+str(sound_BGM), 128, 230.4, bSize[2])
+	drawTextB(bColor[3], "SOUNDS: "+str(sound_game), 128, 172.8, bSize[3])
+	drawTextB(bColor[4], "BACK", 128, 115.2, bSize[4])
+	glColor(1,1,1)
+
+	if fullscreen:
+		glutFullScreen()
+	else:
+		glutPositionWindow(20,30)
+		glutReshapeWindow(window_width, window_height)
+
+	bSound1.set_volume(.01*sound_game)
+	bSound2.set_volume(.01*sound_game)
+	fireSound.set_volume(0.1*sound_game)
+	windSound.set_volume(0.04*sound_BGM)
+	houseMusic.set_volume(0.02*sound_BGM)
+	zombieSound.set_volume(0.1*sound_game)
+	footSound.set_volume(0.1*sound_game)
+	doorSound.set_volume(0.1*sound_game)
+	doorSlam.set_volume(0.1*sound_game)
+
+	opfile=open('Option/op.in','r')
+	setOp=opfile.read().split()
+	setOp[8]=str(fullscreen)
+	setOp[14]=str(sound_BGM)
+	setOp[17]=str(sound_game)
+	opfile=open('Option/op.in','w')
+	for item in setOp:
+		opfile.write(str(item))
+		opfile.write(" ")
+	opfile.close()
+	glutSwapBuffers()
 
 #detect if bullet collied with zombie ?
 def bullet(player, enemy):
@@ -151,6 +282,7 @@ def draw_window(x,y,z,scale,rot=0):
 
 def display():
 	global houseAudio,worldAudio,houseMusic,windSound
+	global current_H,current_W
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -161,6 +293,9 @@ def display():
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 25)
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, [-sin(player1.theta), sin(player1.thetaUp), cos(player1.theta)])
 	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT,20)
+
+	current_W=glutGet(GLUT_WINDOW_WIDTH)
+	current_H=glutGet(GLUT_WINDOW_HEIGHT)
 
 	glLoadIdentity()
 	player1.displayTool()
@@ -239,20 +374,35 @@ def display():
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
 	#Text("HELLO")
 
-	
 	glutSwapBuffers()
-
-
+	if fullscreen:
+		glutFullScreen()
+	else:
+		glutPositionWindow(20,30)
+		glutReshapeWindow(window_width, window_height)
 	print(player1.x,player1.z)
 	print((time.time()-t)*1000)
-def drawText(string, x, y):
-	glLineWidth(2)
-	glColor(0,0,0)  # Yellow Color
+
+def drawTextB(lis, string,x,y,textsize=0.35):
+	glLineWidth(4)
+	glLoadIdentity()
+	glColor(lis[0],lis[1],lis[2]) #GIVEN THE COLOR IN A LIST
+	glTranslate(x,y,1)
+	glScale(textsize,textsize,textsize)
+	string=string.encode()
+	for char in string:
+		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, char)
+
+def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
+	glLineWidth(w)
+	glColor(r,g,b)  # Yellow Color
 	glTranslate(x-len(string)/50,y,0)
-	glScale(0.0005,0.0005,1)
+	glScale(scale,scale,1)
 	string = string.encode() # conversion from Unicode string to byte string
 	for c in string:
 		glutStrokeCharacter(GLUT_STROKE_ROMAN , c )		
+
+
 def Text(s):
 	glMatrixMode(GL_PROJECTION)
 	glPushMatrix()
@@ -274,68 +424,274 @@ def displayPass():
 	return s
 
 def Timer(v):
-	display()
+	global paused
+	if paused and not paused_settings:
+		glDisable(GL_LIGHTING)
+		displayPause()
+	elif paused and paused_settings:
+		glDisable(GL_LIGHTING)
+		displaySettings()
+	else:
+		glEnable(GL_LIGHTING)
+		display()
 	glutTimerFunc(time_interval,Timer,1)
 
 #call function if any key pressed 
 def keyDown(key,xx,yy):
-	global player1,jum,keyState
-	if(key==b" "):
-		player1.jumping=1
-	keyState[ord(key.decode('unicode_escape'))]=1
+	global window_height,window_width,current_H,current_W
+	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
+	global paused_settings,bColor,blue
+	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
+	global player1,jum,keyState,paused
+
+
+	if not paused:
+		if key==b"\x1b":
+			paused=1
+		if(key==b" "):
+			player1.jumping=1
+		keyState[ord(key.decode('unicode_escape'))]=1
+
+	else:
+		if key==b"\x1b":
+			paused=0
+		if not paused_settings:
+			if key==b'\r': #ENTER BUTTON \r
+				if bColor[0]==blue:
+					print("SAVE GAME")
+				if bColor[1]==blue:
+					print("LOAD GAME")
+				if bColor[2]==blue:
+					paused_settings=1
+				if bColor[3]==blue:
+					sys.exit()
+
+		else:
+			bSound2.play()
+			if key==b'\r':
+				if bColor[1]==blue:
+					if fullscreen:
+						fullscreen=0
+					else:
+						fullscreen=1
+				if bColor[2]==blue:
+					if sound_BGM==100:
+						sound_BGM=0
+					else:
+						sound_BGM+=10
+				if bColor[3]==blue:
+					if sound_game==100:
+						sound_game=0
+					else:
+						sound_game+=10
+				if bColor[4]==blue:
+					paused_settings=0
+
 
 #call function when the key is (up) (no presse)
 def keyUp(key,xx,yy):
 	global keyStates
-	keyState[ord(key.decode('unicode_escape'))]=0
+	if not paused:
+		keyState[ord(key.decode('unicode_escape'))]=0
 
 #used for special key like SHIFT
+
+currentButton=0 #CURRENT BUTTON SELECTED BY KEYBOARD
+upArrow,downArrow=101,103 #VALUES FOR UP AND DOWN ARROW
 def specialKey(key,xx,yy):
+	global bColor,currentButton,upArrow,downArrow
+	global window_height,window_width,current_H,current_W
+	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
+	global paused_settings,bColor,blue
+	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
 	global player1, keyState
-	keyState[112]=not keyState[112]
+
+	if not paused:
+		keyState[112]=not keyState[112]
+	else:
+		if not paused_settings:
+
+			if key==upArrow:
+				bSound1.play()
+				bSize[currentButton]=0.35
+				if currentButton==0:
+					currentButton=3
+				else:
+					currentButton-=1
+				bColor=[white,white,white,white,white]
+				bSize[currentButton]=0.4
+				bColor[currentButton]=blue
+				
+
+			elif key==downArrow:
+				bSound1.play()
+				bSize[currentButton]=0.35
+				if currentButton==3 or currentButton==4:
+					currentButton=0
+				else:
+					currentButton+=1
+				bColor=[white,white,white,white,white]
+				bColor[currentButton]=blue
+				bSize[currentButton]=0.4
+				
+
+		else:
+			#SETTINGS
+			if key==upArrow:
+				bSound1.play()
+				bSize[currentButton]=0.35
+				if currentButton==1:
+					currentButton=4
+				else:
+					currentButton-=1
+				bColor=[white,white,white,white,white]
+				bSize[currentButton]=0.4
+				bColor[currentButton]=blue
+				
+
+			elif key==downArrow:
+				bSound1.play()
+				bSize[currentButton]=0.35
+				if currentButton==4:
+					currentButton=1
+				else:
+					currentButton+=1
+				bColor=[white,white,white,white,white]
+				bColor[currentButton]=blue
+				bSize[currentButton]=0.4
 
 #get the mouse position in the screen 
 def mouseMove(x,y):
-	global window_height,window_width,PI
-	if(x<2):
-		glutWarpPointer( window_width-2 , y )
-	if(x>window_width-2):
-		glutWarpPointer(2,y)
+	global window_height,window_width,PI,current_H,current_W
+	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
+	global paused_settings,bColor,blue
+	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
 
-	player1.theta=(PI*x)/683-PI
-	player1.thetaUp=-(PI*y)/768+PI/2
+	if paused:
+		y=current_H-y #LET THE MOUSE COORDINATES START FROM BOTTOM LEFT NOT TOP LEFT
+		y=y*window_height/current_H #FIXING THE MOUSE SCREEN AREA IF RESIZED
+		x=x*window_width/current_W
+
+		#RESET BUTTONS TO DEFAULTS IF NO HIGHLIGHTED
+		bColor=[white,white,white,white,white]
+		bSize=[0.35,0.35,0.35,0.35,0.35]
+		#CHECK IF THE MOUSE IS NOW HIGHLIGHTING ANY BUTTON
+		if (x>=128*window_width/1280 and x<=420*window_width/1280): #NEWGAME
+			if(y<390*window_height/720 and y>345*window_height/720):
+					bColor[0]=blue
+					bSize[0]=0.4
+		
+		if (x>=128*window_width/1280 and x<=460*window_width/1280): #LOADGAME
+			if(y<330*window_height/720 and y>285*window_height/720):
+					bColor[1]=blue
+					bSize[1]=0.4
+					
+		if (x>=128*window_width/1280 and x<=430*window_width/1280): #SETTINGS
+			if(y<275*window_height/720 and y>230*window_height/720):
+					bColor[2]=blue
+					bSize[2]=0.4
+					
+		if (x>=128*window_width/1280 and x<=400*window_width/1280): #CblueITS
+			if(y<215*window_height/720 and y>170*window_height/720):
+					bColor[3]=blue
+					bSize[3]=0.4
+					
+		if (x>=128*window_width/1280 and x<=300*window_width/1280): #EXIT
+			if(y<160*window_height/720 and y>115*window_height/720):
+					bColor[4]=blue
+					bSize[4]=0.4
+	else:
+		if(x<2):
+			glutWarpPointer( window_width-2 , y )
+		if(x>window_width-2):
+			glutWarpPointer(2,y)
+
+		player1.theta=(PI*x)/683-PI
+		player1.thetaUp=-(PI*y)/768+PI/2
 
 #get the mouse click 
 def mouseShoot(key,state,x,y):
-	if(key==0 and state==0 and player1.animation==0):
-		player1.animation=1
-		if(player1.t==0):
-			fireSound.stop()
-			fireSound.play()
-			for i in range(len(lisZombies)):
-				if(bullet(player1,lisZombies[i]) ):
-					del lisZombies[i]#die
-					break
-		else:
-			for i in range(len(lisZombies)):
-				print(axe(player1,lisZombies[i]))
-				print(lisZombies[i].health)
-				if(axe(player1,lisZombies[i])):
-					lisZombies[i].health-=50
-				if(lisZombies[i].health<0):
-					del lisZombies[i]
-					break
+	global window_height,window_width,PI,current_H,current_W
+	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
+	global paused_settings,bColor,blue
+	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
+	if paused:
+		if not paused_settings:
+			if bColor[0]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					print("SAVE GAME")
+					bSound2.play()
+			if bColor[1]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					print("LOAD GAME")
+					bSound2.play()
+			if bColor[2]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					paused_settings=1
+			if bColor[3]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					sys.exit()
 
-	if((key==3 or key==4 )and state==0):
-		player1.updateTool()
-		#get next gun
-		#play voice
+		else: #SETTTINGS
+			if bColor[1]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					if fullscreen:
+						fullscreen=0
+					else:
+						fullscreen=1
+			if bColor[2]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					if sound_BGM==100:
+						sound_BGM=0
+					else:
+						sound_BGM+=10
+			if bColor[3]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					if sound_game==100:
+						sound_game=0
+					else:
+						sound_game+=10
+			if bColor[4]==blue:
+				if key==GLUT_LEFT_BUTTON and state==GLUT_UP:
+					bSound2.play()
+					paused_settings=0
+
+
+	else:
+		if(key==0 and state==0 and player1.animation==0):
+			player1.animation=1
+			if(player1.t==0):
+				fireSound.stop()
+				fireSound.play()
+				for i in range(len(lisZombies)):
+					if(bullet(player1,lisZombies[i]) ):
+						del lisZombies[i]#die
+						break
+			else:
+				for i in range(len(lisZombies)):
+					print(axe(player1,lisZombies[i]))
+					print(lisZombies[i].health)
+					if(axe(player1,lisZombies[i])):
+						lisZombies[i].health-=50
+					if(lisZombies[i].health<0):
+						del lisZombies[i]
+						break
+
+		if((key==3 or key==4 )and state==0):
+			player1.updateTool()
+			#get next gun
+			#play voice
 
 def main1():
 	t=time.time()#to calculate time needed to load the game
-
+	global current_H,current_W
 	global player1,lisTexture,fireSound,windSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
-	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
+	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam,bSound2,bSound1
 	pygame.init()
 	setting()
 	glutInit()
@@ -344,6 +700,9 @@ def main1():
 	#glutInitWindowPosition(0,0)
 	#glutCreateWindow(b"WAR")
 	init1()
+
+	current_W=glutGet(GLUT_WINDOW_WIDTH)
+	current_H=glutGet(GLUT_WINDOW_HEIGHT)
 
 	for i in range(len(alist1)):
 		alist1[i][0]=alist1[i][0]*5+25
@@ -455,7 +814,8 @@ def main1():
 	doorSlam=pygame.mixer.Sound("Sounds/DoorSlam.wav")
 	doorSlam.set_volume(0.1*sound_game)
 
-
+	bSound1=pygame.mixer.Sound("Menu\Audio\ButtonScroll.wav")
+	bSound2=pygame.mixer.Sound("Menu\Audio\ButtonSelect.wav")
 
 	player1=player(fovy,window_width,window_height,footSound,[G1lis,M1lis])
 

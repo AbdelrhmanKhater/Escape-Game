@@ -4,7 +4,7 @@ from OpenGL.GLUT import *
 
 def drawText(string, x, y):
   glLineWidth(2)
-  glColor(1,1,1)  # Yellow Color
+  glColor(1,1,1)  # white Color
 
   glTranslate(x-len(string)/50,y,0)
   glScale(0.0005,0.0005,1)
@@ -26,6 +26,8 @@ def Text(s):
   glPopMatrix()
   glMatrixMode(GL_MODELVIEW)
   glPopMatrix()
+
+
 #calculate the collision with walls and objects 
 def collision(player,vertex,lisOBJ,lisDoors):
   for i in range (0,len(vertex)-1,2):
@@ -56,7 +58,6 @@ def collision(player,vertex,lisOBJ,lisDoors):
     typ=lisDoors[i][1]
     dist=((player.x-target.x)**2+(player.z-target.z)**2 +(player.y-player.tall-1-target.y)**2)**0.5
     if(dist<target.radius):
-
       return True
 
   return False  

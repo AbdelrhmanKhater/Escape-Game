@@ -120,7 +120,6 @@ def bullet(player, enemy):
 
 def axe(player,enemy):
 	distance=((enemy.x-player.x)**2+(enemy.y-player.y+player.tall)**2+(enemy.z-player.z)**2)**0.5
-	print(distance)
 	return distance<10
 
 

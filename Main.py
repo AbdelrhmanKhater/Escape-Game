@@ -59,6 +59,7 @@ keyState=[0 for i in range(0,256)]
 time_interval=30
 PI=3.14159265359
 
+
 #intialization of opengl
 def init1():
 	glClearColor(1,1,1,0)
@@ -153,9 +154,6 @@ def display():
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global player1,yHouse
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-
-
 	player1.updateCamera()
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
@@ -265,8 +263,8 @@ def displayPass():
 	s=input("enter the pass:")
 	return s
 
-def Timer(v): 
-	display() 
+def Timer(v):
+	display()
 	glutTimerFunc(time_interval,Timer,1)
 
 #call function if any key pressed 

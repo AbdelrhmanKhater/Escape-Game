@@ -37,7 +37,6 @@ class zombie:
 			self.animation=1
 			if(distance<3):
 				return True		#mean player died
-
 		return False			#mean player didn't die
 
 	#display the zombie and make appropriate translation and ....

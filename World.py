@@ -67,11 +67,6 @@ class world:
 				glTexCoord2f(t[3][0],t[3][1])
 				
 				glNormal(h*self.mapArray[i][j]-h*self.mapArray[i+1][j],2,h*self.mapArray[i][j]-h*self.mapArray[i][j+1])
-				#glNormal(0,1,0)
-				#glVertex3d(v[0][0],v[0][1],v[0][2])
-				#glVertex3d(v[1][0],v[1][1],v[1][2])
-				#glVertex3d(v[2][0],v[2][1],v[2][2])
-				#glVertex3d(v[3][0],v[3][1],v[3][2])
 			glEnd()
 			glDisable(GL_TEXTURE_2D)
 		glEndList()
@@ -84,6 +79,4 @@ class world:
 		glCallList(self.gl_lis)
 
 	def height(self,x,z):
-		return self.mapArray[int((x-self.x)/self.size)][int((z-self.z)/self.size)]*self.heightRatio
-	def setheight(self,x,z,h):
-		self.mapArray[int((x-self.x)/self.size)][int((z-self.z)/self.size)]=h/self.heightRatio
+		return self.mapArray[int((x+self.x)/self.size)][int((z+self.z)/self.size)]*self.heightRatio

@@ -20,14 +20,6 @@ class obje:
 
 		self.doorKey=doorKey
 		self.doorRotation=doorRotation
-	def updatePosition(self,x,y,z):
-		self.x=x
-		self.y=y
-		self.z=z
-
-	def setHeight(self,height):
-		self.height=height
-
 
 	def disp(self):
 		glTranslate(self.x,self.y,self.z)
@@ -39,7 +31,7 @@ class obje:
 		if(self.animation==1):
 			self.i+=1
 
-	def dispDoor(self,audio,played=0):
+	def dispDoor(self,audio):
 		if not self.rotate:
 			glTranslate(self.x-2.5,self.y,self.z)	
 		else:
@@ -57,12 +49,10 @@ class obje:
 		glScale(self.scale,self.scale,self.scale)
 		glCallList(self.OBJ[0].gl_list)
 		if self.animation and self.angle>-120:
-			if not played:
+			if not self.angle:
 				audio.play()
-				played=1
-			if played==1:
 				audio.fadeout(3000)
-				played=2
+
 			self.angle-=2
 
 

@@ -91,16 +91,22 @@ def texInit(name,id):
 def init1():
 	global pauseimage_id,pauseimage
 	glClearColor(1,1,1,0)
-	#glutSetCursor(GLUT_CURSOR_NONE)
+	glutSetCursor(GLUT_CURSOR_NONE)
 	glEnable(GL_LIGHTING)
+	
+	#flash light
 	glEnable(GL_LIGHT0)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, [0.1, 0.1, 0.1, 1.0])
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.2, 0.2, 0.2, 1.0])
-	glLightfv(GL_LIGHT0, GL_SPECULAR, [1, 1, 1, 1.0])
+	glLightfv(GL_LIGHT0, GL_SPECULAR, [0, 0, 0, 0.0])
+
+	#world light 
 	glEnable(GL_LIGHT1)
 	glLightfv(GL_LIGHT1, GL_AMBIENT, [0.5, 0.5, 0.5, 1.0])
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, [0.01, 0.01, 0.01, 1.0])
 	glLightfv(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1.0])
+	
+	#disable the effect of color
 	glDisable(GL_COLOR_MATERIAL)
 
 	pauseimage_id=glGenTextures(2)
@@ -138,7 +144,6 @@ def setting():
 	fovy=int(f[11])
 	sound_BGM=int(f[14])
 	sound_game=int(f[17])
-
 
 def displayPause():
 	global current_H,current_W,white,blue,blue,bColor,bSize
@@ -247,12 +252,11 @@ def bullet(player, enemy):
 	c = (xs-xc)**2 + (ys-yc)**2 + (zs-zc)**2 - r**2
 	M= b**2 - 4*a*c
 
-	return M> 0
+	return M>= 0
 
 def axe(player,enemy):
 	distance=((enemy.x-player.x)**2+(enemy.y-player.y+player.tall)**2+(enemy.z-player.z)**2)**0.5
 	return distance<10
-
 
 #Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
 def draw_window(x,y,z,scale,rot=0):
@@ -439,12 +443,11 @@ def goOrtho():
 
 def backPrespective():
 	glEnable(GL_LIGHTING)
-	glMatrixMode(GL_PROJECTION)
-	glPopMatrix()
 	glMatrixMode(GL_MODELVIEW)
 	glPopMatrix()
-
-
+	glMatrixMode(GL_PROJECTION)
+	glPopMatrix()
+	
 def displayPass():
 	s=input("enter the pass:")
 	return s
@@ -516,7 +519,6 @@ def keyDown(key,xx,yy):
 				if bColor[4]==blue:
 					paused_settings=0
 
-
 #call function when the key is (up) (no presse)
 def keyUp(key,xx,yy):
 	global keyStates
@@ -525,7 +527,6 @@ def keyUp(key,xx,yy):
 				keyState[ord(key.decode('unicode_escape'))]=0
 
 #used for special key like SHIFT
-
 currentButton=0 #CURRENT BUTTON SELECTED BY KEYBOARD
 upArrow,downArrow=101,103 #VALUES FOR UP AND DOWN ARROW
 def specialKey(key,xx,yy):
@@ -705,8 +706,6 @@ def mouseShoot(key,state,x,y):
 						break
 			else:
 				for i in range(len(lisZombies)):
-					print(axe(player1,lisZombies[i]))
-					print(lisZombies[i].health)
 					if(axe(player1,lisZombies[i])):
 						lisZombies[i].health-=50
 					if(lisZombies[i].health<0):
@@ -727,9 +726,6 @@ def main1():
 	setting()
 	glutInit()
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-	#glutInitWindowSize(window_width,window_height)
-	#glutInitWindowPosition(0,0)
-	#glutCreateWindow(b"WAR")
 	init1()
 
 	current_W=glutGet(GLUT_WINDOW_WIDTH)
@@ -742,19 +738,17 @@ def main1():
 	
 	Zlis=[]
 	G1lis=[]
-	G2lis=[]
 	M1lis=[]
-	M2lis=[]
 
-	for i in range(1,115,2):#115
+
+	'''for i in range(1,156,2):#156
 		sr="Monster_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
 			ss+=str(0)
 		sr+=ss+str(i)+".obj"
-
-		Zlis.append(sr)
-	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]
+		Zlis.append(sr)	
+	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]'''
 
 	for i in range(1,11):#11
 		sr="Gun_"
@@ -762,7 +756,6 @@ def main1():
 		for j in range(0,5-int(log10(i))):
 			ss+=str(0)
 		sr+=ss+str(i)+".obj"
-
 		G1lis.append(sr)
 	G1lis=[OBJ(G1lis[i],False,"Models/Gun/") for i in range (len(G1lis))]
 
@@ -773,7 +766,6 @@ def main1():
 		for j in range(0,5-int(log10(i))):
 			ss+=str(0)
 		sr+=ss+str(i)+".obj"
-
 		M1lis.append(sr)
 	M1lis=[OBJ(M1lis[i],False,"Models/Axe/") for i in range (len(M1lis))]
 
@@ -782,8 +774,8 @@ def main1():
 	zombieSound.set_volume(0.1*sound_game)
 
 	#create zombies
-	lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
+	#lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
+	#lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[30,0,0],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,50],30,0.5,-90))
@@ -804,7 +796,7 @@ def main1():
 	world1=world('world.png',-500,-500)
 	world1.render(4,100)
 	yHouse=world1.height(26,5)
-	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,world1.height(25,4)+0.1,4],-1,0.05,0))
+	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,yHouse+0.1,4],-1,0.05,0))
 
 
 	Dlis=[OBJ("Door1.obj",False,"Models/Door1/")]

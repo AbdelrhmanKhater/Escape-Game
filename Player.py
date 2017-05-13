@@ -159,7 +159,7 @@ class player:
 			self.playerMove=1
 			
 		collied=collision(self,alist,lisObjs,lisDoors+lisSpecialDoors)
-
+		near(self,None,lisDoors,keyState)
 		if(self.playerMove and not self.jumping):
 			if not self.walkingAudio:
 				self.footSound.play(-1)

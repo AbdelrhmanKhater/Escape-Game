@@ -19,9 +19,9 @@ class player:
 		self.jumping=0
 		self.tall=6
 
-		self.x=100
+		self.x=0#100
 		self.y=self.tall
-		self.z=0
+		self.z=0#100
 		self.lookx=0
 		self.looky=0
 		self.lookz=0
@@ -159,7 +159,7 @@ class player:
 			self.playerMove=1
 			
 		collied=collision(self,alist,lisObjs,lisDoors+lisSpecialDoors)
-		Near=near(self,None,lisDoors,keyState)
+		near(self,None,lisDoors,keyState)
 		if(self.playerMove and not self.jumping):
 			if not self.walkingAudio:
 				self.footSound.play(-1)

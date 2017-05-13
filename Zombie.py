@@ -4,11 +4,10 @@ from OpenGL.GLUT import *
 
 from math import *
 class zombie:
-	def __init__(self,health=100,OBJ1=None,OBJ2=None,OBJ3=None,lis=[0,0,0],raidus=5,scale=1,rotate=0):
+	def __init__(self,health=100,OBJ1=None,lis=[0,0,0],raidus=5,scale=1,rotate=0,zombieSound=None):
 		self.CurrentOBJ=OBJ1
 		self.OBJ1=OBJ1
-		self.OBJ2=OBJ2
-		self.OBJ3=OBJ3
+
 		self.tall=-1
 
 		self.x=lis[0]
@@ -20,7 +19,7 @@ class zombie:
 		self.rotate=rotate
 		
 		self.health=health
-
+		self.zombieSound=zombieSound
 		self.animation=0
 		self.i=0
 
@@ -48,32 +47,10 @@ class zombie:
 		glRotate(self.rotate,0,1,0)
 		glTranslate(14,0,0)
 		if(self.i>=len(self.CurrentOBJ)):
-			if(self.CurrentOBJ!=self.OBJ3):
-				if(self.CurrentOBJ==self.OBJ1):
 					self.i=30
-				else:
-					self.i=0
-				self.CurrentOBJ=self.OBJ1 
 		glCallList(self.CurrentOBJ[self.i].gl_list)
 		if(self.animation==1):
 			self.i+=1
-
-	'''def criticalHit(self):
-		self.health-=50
-		if(self.health<=0):
-			self.i=0
-			self.CurrentOBJ=self.OBJ3
-			return True
-		self.CurrentOBJ=self.OBJ2
-		return False
-
-
-	def hit(self):
-		self.health-=25
-		if(self.health<=0):
-			self.i=0
-			self.CurrentOBJ=self.OBJ3
-		self.CurrentOBJ=self.OBJ2'''
 
 	#make the zombie to walk toward the player
 	def walk(self,player):

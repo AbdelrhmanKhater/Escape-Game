@@ -64,11 +64,12 @@ class player:
 	def displayTool(self):
 		if(self.t==0):
 			glLoadIdentity()
-			glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta),
-						self.y+sin(self.thetaUp)/8.0-0.05,
-						self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
+			#glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta),
+						#self.y+sin(self.thetaUp)/8.0-0.05,
+						#self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
 			glRotate(-self.theta*180/3.14,0,1,0)
 			glRotate(-self.thetaUp*180/3.14,1,0,0)
+			glTranslate(-0.1,0,-1)
 			glScale(0.05,0.05,0.05)
 		else:
 			glLoadIdentity()

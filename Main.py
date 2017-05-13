@@ -286,7 +286,7 @@ LastFps=0
 def display():
 	global houseAudio,worldAudio,houseMusic,windSound,LastFps
 	global current_H,current_W
-	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
+	
 	global player1,yHouse
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	player1.updateCamera()
@@ -380,9 +380,7 @@ def display():
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
-	goOrtho()
-	drawText(str(int(1/(time.time()-t))),-0.96,0.92,0.0005,2,1,0,0)
-	backPrespective()
+	
 	goOrtho()
 	drawCursor()
 	backPrespective()
@@ -393,11 +391,7 @@ def display():
 	else:
 		glutPositionWindow(20,30)
 		glutReshapeWindow(window_width, window_height)
-	#print(player1.x,player1.z)
 
-
-	LastFps=int((1/(time.time()-t)+LastFps)/2)
-	#print((time.time()-t)*1000)
 
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
@@ -453,6 +447,8 @@ def displayPass():
 	return s
 
 def Timer(v):
+	global LastFps
+	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global paused
 	if paused and not paused_settings:
 		glDisable(GL_LIGHTING)
@@ -463,7 +459,19 @@ def Timer(v):
 	else:
 		glEnable(GL_LIGHTING)
 		display()
-	glutTimerFunc(time_interval,Timer,1)
+
+	time_calculated=time.time()-t
+
+	LastFps=int((1/(time_calculated)+LastFps)/2)
+	goOrtho()
+	drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
+	backPrespective()
+
+	
+	if(time_interval-time_calculated>0):
+		t=time_interval-time_calculated*1000
+
+	glutTimerFunc(int(t),Timer,1)
 
 #call function if any key pressed 
 def keyDown(key,xx,yy):
@@ -538,7 +546,7 @@ def specialKey(key,xx,yy):
 	global player1, keyState
 
 	if not paused:
-		keyState[112]=not keyState[112]
+		keyState[key]=1
 	else:
 		if not paused_settings:
 
@@ -591,6 +599,8 @@ def specialKey(key,xx,yy):
 				bColor[currentButton]=blue
 				bSize[currentButton]=0.4
 
+def specialKeyUp(key,xx,yy):
+	keyState[key]=0
 #get the mouse position in the screen 
 def mouseMove(x,y):
 	global window_height,window_width,PI,current_H,current_W
@@ -846,6 +856,7 @@ def main1():
 	glutKeyboardFunc(keyDown)
 	glutKeyboardUpFunc(keyUp)
 	glutSpecialFunc(specialKey)
+	glutSpecialUpFunc(specialKeyUp)
 	glutPassiveMotionFunc(mouseMove)
 	glutMouseFunc(mouseShoot)
 	glutDisplayFunc(display)

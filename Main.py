@@ -490,14 +490,16 @@ def Timer(v):
 		display()
 
 	time_calculated=time.time()-t
-	
+
 	LastFps=int((1/(time_calculated)+LastFps)/2)
 
 	if(time_interval-time_calculated*1000>0):
 		t=time_interval-time_calculated*1000
+	else:
+		t=1
 
 	glutTimerFunc(int(t),Timer,1)
-
+1494670355
 #call function if any key pressed 
 def keyDown(key,xx,yy):
 	global window_height,window_width,current_H,current_W

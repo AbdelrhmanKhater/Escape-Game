@@ -69,8 +69,8 @@ class player:
 						#self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
 			glRotate(-self.theta*180/3.14,0,1,0)
 			glRotate(-self.thetaUp*180/3.14,1,0,0)
-			glTranslate(-0.01,0,0)
-			glScale(0.05,0.05,0.05)
+			#glTranslate(-0.1,6,0.1)
+			#glScale(0.05,0.05,0.05)
 		else:
 			glLoadIdentity()
 			#the item postion in x - a small value of(sin(theta)) to translate the obj in front of the camera 

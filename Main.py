@@ -670,7 +670,7 @@ def mouseShoot(key,state,x,y):
 	global window_height,window_width,PI,current_H,current_W
 	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
 	global paused_settings,bColor,blue
-	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
+	global fullscreen,sound_game,sound_BGM,bSound1,bSound2,axeSound,manSound
 	if paused:
 		if not paused_settings:
 			if bColor[0]==blue:
@@ -726,8 +726,9 @@ def mouseShoot(key,state,x,y):
 				fireSound.play()
 				for i in range(len(lisZombies)):
 					if(bullet(player1,lisZombies[i]) ):
-						lisZombies[i].zombieSound.fadeout(20000)
-						del lisZombies[i]#die
+						lisZombies[i].zombieSound.fadeout(16000)
+						manSound.play()
+						del lisZombies[i] #Die
 						break
 			else:
 				axeSound.stop()
@@ -768,14 +769,14 @@ def main1():
 	M1lis=[]
 
 
-	'''for i in range(1,156,2):#156
+	for i in range(1,156,2):#156
 		sr="Monster_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
 			ss+=str(0)
 		sr+=ss+str(i)+".obj"
 		Zlis.append(sr)	
-	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]'''
+	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]
 
 	for i in range(1,11): #APPEND GUN FRAMES TO THE G1 LIST
 		sr="Gun_"
@@ -801,8 +802,8 @@ def main1():
 	zombieSound.set_volume(0.1*sound_game)
 
 	#CREATE ZOMBIES
-	#lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
-	#lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[30,0,0],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,50],30,0.5,-90))

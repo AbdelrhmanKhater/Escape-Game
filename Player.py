@@ -69,7 +69,7 @@ class player:
 						#self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
 			glRotate(-self.theta*180/3.14,0,1,0)
 			glRotate(-self.thetaUp*180/3.14,1,0,0)
-			glTranslate(-0.1,0,-1)
+			glTranslate(-0.01,0,0)
 			glScale(0.05,0.05,0.05)
 		else:
 			glLoadIdentity()

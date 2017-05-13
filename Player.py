@@ -19,9 +19,9 @@ class player:
 		self.jumping=0
 		self.tall=6
 
-		self.x=0#100
+		self.x=0 #100
 		self.y=self.tall
-		self.z=0#100
+		self.z=0 #100
 		self.lookx=0
 		self.looky=0
 		self.lookz=0
@@ -41,15 +41,17 @@ class player:
 		self.tools=len(self.lisOBJ)
 		self.walkingAudio=0
 
-	def hieght(self,hieght):
-		self.y=hieght+self.tall
+	def height(self,height):
+		self.y=height+self.tall
 
 	#update the postion of the player and where he is looking to
 	def updateCamera(self):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 		gluPerspective(self.fovy,self.Width/self.Height,0.01,3000)
-		gluLookAt(self.x,self.y,self.z	,	self.x-sin(self.theta), self.y+sin(self.thetaUp), self.z+cos(self.theta)	,	0,1,0)
+		gluLookAt(self.x,self.y,self.z,
+					self.x-sin(self.theta), self.y+sin(self.thetaUp), self.z+cos(self.theta),
+					0,1,0)
 
 	def updateTool(self):
 		#get next tool
@@ -62,7 +64,9 @@ class player:
 	def displayTool(self):
 		if(self.t==0):
 			glLoadIdentity()
-			glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta), self.y+sin(self.thetaUp)/8.0-0.05, self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
+			glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta),
+						self.y+sin(self.thetaUp)/8.0-0.05,
+						self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
 			glRotate(-self.theta*180/3.14,0,1,0)
 			glRotate(-self.thetaUp*180/3.14,1,0,0)
 			glScale(0.05,0.05,0.05)
@@ -70,7 +74,9 @@ class player:
 			glLoadIdentity()
 			#the item postion in x - a small value of(sin(theta)) to translate the obj in front of the camera 
 			#and a small value to translate it right
-			glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta), self.y+sin(self.thetaUp)/8.0-0.1, self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
+			glTranslate(self.x-sin(self.theta)/8.0-0.05*cos(self.theta),
+						self.y+sin(self.thetaUp)/8.0-0.1,
+						self.z+cos(self.theta)/8.0-0.05*sin(self.theta))
 			glRotate(-self.theta*180/3.14,0,1,0)
 			glRotate(-self.thetaUp*180/3.14,1,0,0)
 			glRotate(90,0,1,0)

@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import * 
-#our models
+#GAME FILES
 from Loader import *
 from Player import *
 from Texture import *
@@ -9,13 +9,13 @@ from Collision import *
 from Zombie import *
 from Object import *
 from World import *
-#some extra libraries
+#NEEDED LIBRARIES
 from math import *
 import sys, pygame,os,numpy,time
-#comen
-#variables we need
+
+#Variables needed
 global player1,fovy,window_width,window_height,fullscreen,fireSound,windSound,zombieSound,footSound,world1,yHouse
-global paused,sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam
+global paused,sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam,axeSound,manSound
 
 paused=0
 paused_settings=0
@@ -28,7 +28,7 @@ bSize=[0.35,0.35,0.35,0.35,0.35]
 bColor=[white,white,white,white,white]
 
 
-alist1=[#horizontal walls
+alist1=[#Horizontal walls
 		[0,0],[1,0],
 		[2,0],[18,0],
 		[0,4],[6,4],
@@ -37,7 +37,7 @@ alist1=[#horizontal walls
 		[15,6],[18,6],
 		[0,9],[2,9],
 		[4,9],[18,9],
-		#vertical
+		#Vertical Walls
 		[0,0],[0,9],
 		[6,0],[6,1.5],
 		[6,2.5],[6,7],
@@ -50,7 +50,7 @@ alist1=[#horizontal walls
 		[15,5],[15,7],
 		[15,8],[15,9],
 		[18,0],[18,9],
-		#staris
+		#Stairs
 		[14,3],[14,7]
 		]
 
@@ -62,17 +62,19 @@ lisTools=[]
 lisDoors=[]
 lisSpecialDoors=[]
 lisHouse=[]
-#all keyboards buttons have value 0 if no button pressed
+
+#List of zero initialized states for all keyboard inputs
 keyState=[0 for i in range(0,256)]
 
 
-#30ms per frame
+#30ms per frame for Timer function
 time_interval=30
 PI=3.14159265359
 
+#Pause menu images (textures holders)
 pauseimage_id,pauseimage=0,0
-#intialization of opengl
 
+#Pause menu image initialization
 def texInit(name,id):
 	global pauseimage_id,pauseimage
 	imgload=pygame.image.load(name) #LOAD IMAGE
@@ -87,28 +89,29 @@ def texInit(name,id):
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,imgdata)
 	#ASSING THE IMAGE TO A 2D TEXTURE WITH THE GIVEN SPECIFICATIONS ^
 
-
+#OPENGL Initialization for the in-game scene.
 def init1():
 	global pauseimage_id,pauseimage
 	glClearColor(1,1,1,0)
 	glutSetCursor(GLUT_CURSOR_NONE)
 	glEnable(GL_LIGHTING)
 	
-	#flash light
+	#Flash Light
 	glEnable(GL_LIGHT0)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, [0.1, 0.1, 0.1, 1.0])
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.2, 0.2, 0.2, 1.0])
 	glLightfv(GL_LIGHT0, GL_SPECULAR, [0, 0, 0, 0.0])
 
-	#world light 
+	#World Light "Moon"
 	glEnable(GL_LIGHT1)
 	glLightfv(GL_LIGHT1, GL_AMBIENT, [0.5, 0.5, 0.5, 1.0])
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, [0.01, 0.01, 0.01, 1.0])
 	glLightfv(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1.0])
 	
-	#disable the effect of color
+	#Disabling glColor effects.
 	glDisable(GL_COLOR_MATERIAL)
 
+	#Making a glList for drawing pause menu background later.
 	pauseimage_id=glGenTextures(2)
 	texInit("Menu\Images\Paused.jpg",0)
 	pauseimage=glGenLists(1) #GENERATE A GL.LIST THAT APPLIES ANY GIVEN TEXTURE
@@ -128,13 +131,14 @@ def init1():
 	glEndList() #END THE LIST
 
 	glEnable(GL_DEPTH_TEST)
-	#glShadeModel(GL_SMOOTH)
 	glEnable(GL_BLEND)
+
+	#Ignore repeated consecutive inputs
 	glutIgnoreKeyRepeat( GL_TRUE )
 	if(fullscreen):
 		glutFullScreen()
 
-#read setting from file like (the resolution , fovy etc...)
+#READING SAVED SETTINGS IN THE OPTION FILE
 def setting():
 	global window_width,window_height,fullscreen,fovy,sound_BGM,sound_game
 	f= open('Option/op.in').read().split()
@@ -145,6 +149,7 @@ def setting():
 	sound_BGM=int(f[14])
 	sound_game=int(f[17])
 
+#DISPLAY FUNCTION FOR THE PAUSE MENU
 def displayPause():
 	global current_H,current_W,white,blue,blue,bColor,bSize
 	current_W=glutGet(GLUT_WINDOW_WIDTH)
@@ -170,9 +175,10 @@ def displayPause():
 		glutReshapeWindow(window_width, window_height)
 	glutSwapBuffers()
 
+#DISPLAY FUNCTION FOR THE SETTINGS SCREEN IN PAUSE MENU
 def displaySettings():
 	global bColor,bSize,white,blue,blue
-	global current_W,current_H,fullscreen,sound_game,sound_BGM,bSound1,bSound2
+	global current_W,current_H,fullscreen,sound_game,sound_BGM,bSound1,bSound2,axeSound,manSound
 	glClearColor(0,0,0,0)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
@@ -205,9 +211,12 @@ def displaySettings():
 		glutPositionWindow(20,30)
 		glutReshapeWindow(window_width, window_height)
 
+	#EDITING SOUNDS AND SCREEN MODE VALUES
 	bSound1.set_volume(.01*sound_game)
 	bSound2.set_volume(.01*sound_game)
 	fireSound.set_volume(0.1*sound_game)
+	axeSound.set_volume(0.1*sound_game)
+	manSound.set_volume(0.1*sound_game)
 	windSound.set_volume(0.04*sound_BGM)
 	houseMusic.set_volume(0.02*sound_BGM)
 	zombieSound.set_volume(0.1*sound_game)
@@ -215,6 +224,7 @@ def displaySettings():
 	doorSound.set_volume(0.1*sound_game)
 	doorSlam.set_volume(0.1*sound_game)
 
+	#ACCESSING THE OP FILE INDEXES THEN OVER WRITING
 	opfile=open('Option/op.in','r')
 	setOp=opfile.read().split()
 	setOp[8]=str(fullscreen)
@@ -227,47 +237,46 @@ def displaySettings():
 	opfile.close()
 	glutSwapBuffers()
 
-#detect if bullet collied with zombie ?
+#FUNCTION FOR BULLET COLLISION DETECTION WITH ZOMBIE
 def bullet(player, enemy):
-	#direction of bullet
+	#Bullet Direction
 	xd=-sin(player.theta)
 	yd=sin(player.thetaUp)
 	zd=cos(player.theta)
-
-	#position of the player
+	#Player Position
 	xs=player.x
 	ys=player.y
 	zs=player.z
-
-	#position of the enemy 
+	#Zombie Position
 	xc=enemy.x
 	yc=enemy.y+7
 	zc=enemy.z
 
-	#r is the raidus of sphere which we check if we collied with it ? sphere==zombie's head
+	#This variable represents the zombie's head (sphere) radius.
 	r=0.5
-	#calculation
+
+	#THE MATH - HIT OR NOT?
 	a=xd**2+yd**2+zd**2
 	b = 2*(xd*(xs-xc)+ yd*(ys-yc) + zd*(zs-zc))
 	c = (xs-xc)**2 + (ys-yc)**2 + (zs-zc)**2 - r**2
 	M= b**2 - 4*a*c
-
+	#SOLVING QUADRATIC EQUATION, NO SOL IF M<0
 	return M>= 0
 
+#AXE HITTING ENEMY - DETECTING FUNCTION
 def axe(player,enemy):
 	distance=((enemy.x-player.x)**2+(enemy.y-player.y+player.tall)**2+(enemy.z-player.z)**2)**0.5
 	return distance<10
 
-#Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
+#Real Data: Window Width = 2.2 , Depth = .2 , Height = 1.8 , Y= 3+0.55
+#DRAWING HOUSE WINDOWS WITH TRANSPARENT QUADS
 def draw_window(x,y,z,scale,rot=0):
-
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	glRotate(rot,0,1,0)
 	glTranslate(x,y,z)
-	glDisable(GL_LIGHTING)
-	#glEnable(GL_COLOR_MATERIAL) #AFFECT THE QUAD WITH COLOR_MATERIAL
-	#glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE) #HOW THE QUAD WILL BE AFFECTED WITH COLOR MATERIAL
+	glDisable(GL_LIGHTING) #This is needed to avoid glColor effects
+	#Drawing a normal quad.
 	glColor4f(0.3,0.3,0.4,0.7)
 	glBegin(GL_QUADS)
 	glVertex(0,0,0)
@@ -275,21 +284,27 @@ def draw_window(x,y,z,scale,rot=0):
 	glVertex(0,1.8*scale,2.2*scale)
 	glVertex(0,1.8*scale,0)
 	glEnd()
-	#glColor(0,0,0) #IF YOU WANT TO MAKE THE GAME MORE DARK, TRY THIS
-	glDisable(GL_BLEND)
-	glEnable(GL_LIGHTING)
-	#glColor4f(1,1,1,0)
 
+	glDisable(GL_BLEND)
+	glEnable(GL_LIGHTING) #Re-enable lighting.
 	glDisable(GL_COLOR_MATERIAL)
 
-LastFps=0
+
+LastFps=0 #COUNTING FPS USING LAST AVERAGE WITH LAST FPS
+
+#MAIN GAME DISPLAY FUNCTION
+
 def display():
+
 	global houseAudio,worldAudio,houseMusic,windSound,LastFps
 	global current_H,current_W
-	
+
 	global player1,yHouse
+
+	t=time.time() #Store the time when we enter the function (to calculate the amount of time this function needs)
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-	player1.updateCamera()
+	player1.updateCamera() #PROJECTION AND LOOK AT STUFF.
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
 	glLightfv(GL_LIGHT0, GL_POSITION,  (player1.x, player1.y, player1.z,1))
@@ -380,9 +395,13 @@ def display():
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
-	
+
 	goOrtho()
 	drawCursor()
+	backPrespective()
+
+	goOrtho()
+	drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
 	backPrespective()
 
 	glutSwapBuffers()
@@ -393,6 +412,7 @@ def display():
 		glutReshapeWindow(window_width, window_height)
 
 
+#DRAWTEXT FUNC. FOR THE MENU BUTTONS - USES LIST
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
 	glLoadIdentity()
@@ -403,19 +423,21 @@ def drawTextB(lis, string,x,y,textsize=0.35):
 	for char in string:
 		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, char)
 
+#DRAWING THE CURSOR ON SCREEN
 def drawCursor():
+	#Fix the aspect ratio for the cursor (to not be stretched).
 	ratio=window_width/window_height
 	glLineWidth(1)
 	glColor(1,1,1)
 	glLoadIdentity()
 	glBegin(GL_LINES)
-	glVertex(0.04/ratio,0,0)
+	glVertex(0.04/ratio,0,0) #Fix the vertical line.
 	glVertex(-0.04/ratio,0,0)
 	glVertex(0,0.04,0)
 	glVertex(0,-0.04,0)
 	glEnd()
 
-
+#ANOTHER DRAWTEXT FUNC. FOR IN GAME PURPOSE
 def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 	glLineWidth(w)
 	glColor(r,g,b)  # Yellow Color
@@ -424,6 +446,9 @@ def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 	string = string.encode() # conversion from Unicode string to byte string
 	for c in string:
 		glutStrokeCharacter(GLUT_STROKE_ROMAN , c )  
+
+#THIS FUNCTION CHANGES TO ORTHOGRAPHIC PROJECTION
+#TO DISPLAY 2D STUFF ON SCREEN BEFORE GOING BACK PERSPECTIVE
 
 def goOrtho():
 	glMatrixMode(GL_PROJECTION)
@@ -435,6 +460,9 @@ def goOrtho():
 	glLoadIdentity()
 	glDisable(GL_LIGHTING)
 
+#THIS FUNCTION GOES BACK PERSPECTIVE AFTER
+#DISPLAYING THE 2D STUFF
+
 def backPrespective():
 	glEnable(GL_LIGHTING)
 	glMatrixMode(GL_MODELVIEW)
@@ -442,6 +470,7 @@ def backPrespective():
 	glMatrixMode(GL_PROJECTION)
 	glPopMatrix()
 	
+
 def displayPass():
 	s=input("enter the pass:")
 	return s
@@ -451,7 +480,7 @@ def Timer(v):
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
 	global paused
 	if paused and not paused_settings:
-		glDisable(GL_LIGHTING)
+		glDisable(GL_LIGHTING) #WE DON'T NEED LIGHTING IN THE PAUSE MENU, DO WE?
 		displayPause()
 	elif paused and paused_settings:
 		glDisable(GL_LIGHTING)
@@ -463,10 +492,7 @@ def Timer(v):
 	time_calculated=time.time()-t
 
 	LastFps=int((1/(time_calculated)+LastFps)/2)
-	goOrtho()
-	drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
-	backPrespective()
-
+	
 	
 	if(time_interval-time_calculated>0):
 		t=time_interval-time_calculated*1000
@@ -482,21 +508,21 @@ def keyDown(key,xx,yy):
 	global player1,jum,keyState,paused
 
 
-	if not paused:
-		if key==b"\x1b":
+	if not paused: #NOT PAUSE = IN GAME
+		if key==b"\x1b": #ESCAPE BUTTON SETS THE GAME STATE TO PAUSE.
 			paused=1
-		if(key==b" "):
+		if(key==b" "): #JUMP WITH SPACE
 			player1.jumping=1
-		if (key==b"f"):
+		if (key==b"f"): #IF PRESSED 'F' CHANGE THE KEYSTATE
 			keyState[ord(key.decode('unicode_escape'))]=not keyState[ord(key.decode('unicode_escape'))]
 		else:
 			keyState[ord(key.decode('unicode_escape'))]=1
 
-	else:
-		if key==b"\x1b":
+	else: #GAME IS PAUSED
+		if key==b"\x1b": #ESCAPE TO RETURN
 			paused=0
-		if not paused_settings:
-			if key==b'\r': #ENTER BUTTON \r
+		if not paused_settings: #NOT IN THE SETTINGS MENU
+			if key==b'\r': #ENTER BUTTON
 				if bColor[0]==blue:
 					print("SAVE GAME")
 				if bColor[1]==blue:
@@ -506,7 +532,7 @@ def keyDown(key,xx,yy):
 				if bColor[3]==blue:
 					sys.exit()
 
-		else:
+		else: #IN THE SETTINGS MENU
 			bSound2.play()
 			if key==b'\r':
 				if bColor[1]==blue:
@@ -527,14 +553,14 @@ def keyDown(key,xx,yy):
 				if bColor[4]==blue:
 					paused_settings=0
 
-#call function when the key is (up) (no presse)
+#THIS FUNCTION IS CALLED ON KEYBOARD RELEASING EVENT
 def keyUp(key,xx,yy):
 	global keyStates
 	if not paused:
-		if key != b"f":
+		if key != b"f": #ALL KEYS EXCEPT 'F' CHANGES STATE ON RELEASING THE BUTTON
 				keyState[ord(key.decode('unicode_escape'))]=0
 
-#used for special key like SHIFT
+
 currentButton=0 #CURRENT BUTTON SELECTED BY KEYBOARD
 upArrow,downArrow=101,103 #VALUES FOR UP AND DOWN ARROW
 def specialKey(key,xx,yy):
@@ -545,28 +571,30 @@ def specialKey(key,xx,yy):
 	global fullscreen,sound_game,sound_BGM,bSound1,bSound2
 	global player1, keyState
 
+
 	if not paused:
 		keyState[key]=1
+
 	else:
 		if not paused_settings:
 
 			if key==upArrow:
 				bSound1.play()
 				bSize[currentButton]=0.35
-				if currentButton==0:
-					currentButton=3
+				if currentButton==0: #WE ARE GOING UP FROM FIRST BUTTON
+					currentButton=3 #GO TO LAST BUTTON
 				else:
 					currentButton-=1
 				bColor=[white,white,white,white,white]
-				bSize[currentButton]=0.4
+				bSize[currentButton]=0.4 #SIZE AND COLOR FOR CURRENT SELECTED BUTTON
 				bColor[currentButton]=blue
 				
 
 			elif key==downArrow:
 				bSound1.play()
 				bSize[currentButton]=0.35
-				if currentButton==3 or currentButton==4:
-					currentButton=0
+				if currentButton==3 or currentButton==4: #GOING DOWN FROM LAST BUTTON (MENU OR SETTINGS)
+					currentButton=0 #GO TO FIRST BUTTON
 				else:
 					currentButton+=1
 				bColor=[white,white,white,white,white]
@@ -617,7 +645,7 @@ def mouseMove(x,y):
 		bColor=[white,white,white,white,white]
 		bSize=[0.35,0.35,0.35,0.35,0.35]
 		#CHECK IF THE MOUSE IS NOW HIGHLIGHTING ANY BUTTON
-		if (x>=128*window_width/1280 and x<=420*window_width/1280): #NEWGAME
+		if (x>=128*window_width/1280 and x<=420*window_width/1280): #SAVE GAME
 			if(y<390*window_height/720 and y>345*window_height/720):
 					bColor[0]=blue
 					bSize[0]=0.4
@@ -632,25 +660,26 @@ def mouseMove(x,y):
 					bColor[2]=blue
 					bSize[2]=0.4
 					
-		if (x>=128*window_width/1280 and x<=400*window_width/1280): #CblueITS
+		if (x>=128*window_width/1280 and x<=400*window_width/1280): #EXIT
 			if(y<215*window_height/720 and y>170*window_height/720):
 					bColor[3]=blue
 					bSize[3]=0.4
 					
-		if (x>=128*window_width/1280 and x<=300*window_width/1280): #EXIT
+		if (x>=128*window_width/1280 and x<=300*window_width/1280): #EMPTY PLACE ((NOT NEEDED))
 			if(y<160*window_height/720 and y>115*window_height/720):
 					bColor[4]=blue
 					bSize[4]=0.4
 	else:
 		if(x<2):
-			glutWarpPointer( window_width-2 , y )
+			glutWarpPointer( window_width-2 , y ) #AT THE END OF THE SCREEN MOVE THE MOUSE TO THE OTHER SIDE
 		if(x>window_width-2):
 			glutWarpPointer(2,y)
 
-		player1.theta=(PI*x)/(window_width/2)-PI
+		player1.theta=(PI*x)/(window_width/2)-PI #MOUSE LOCATION INDICATES THETA AND THETA UP
 		player1.thetaUp=-(PI*y)/(window_height)+PI/2
+		#SOLVE THETA WITH X, THETA UP WITH Y ACCORDING TO ANGLE AND RESOLUTION
 
-#get the mouse click 
+#MOUSE-CLICK FUCNTION
 def mouseShoot(key,state,x,y):
 	global window_height,window_width,PI,current_H,current_W
 	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
@@ -715,6 +744,8 @@ def mouseShoot(key,state,x,y):
 						del lisZombies[i]#die
 						break
 			else:
+				axeSound.stop()
+				axeSound.play()
 				for i in range(len(lisZombies)):
 					if(axe(player1,lisZombies[i])):
 						lisZombies[i].health-=50
@@ -729,17 +760,17 @@ def mouseShoot(key,state,x,y):
 
 def main1():
 	t=time.time()#to calculate time needed to load the game
-	global current_H,current_W
+	global current_H,current_W,manSound
 	global player1,lisTexture,fireSound,windSound,zombieSound,footSound,world1,alist1,yHouse,lisSpecialDoors,lisHouse
-	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam,bSound2,bSound1
+	global sound_BGM,sound_game,worldAudio,houseAudio,houseMusic,windSound,doorSound,doorSlam,bSound2,bSound1,axeSound
 	pygame.init()
 	setting()
 	glutInit()
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 	init1()
 
-	current_W=glutGet(GLUT_WINDOW_WIDTH)
-	current_H=glutGet(GLUT_WINDOW_HEIGHT)
+	current_W=glutGet(GLUT_WINDOW_WIDTH) #IN CASE ANY RESHAPE HAPPENS
+	current_H=glutGet(GLUT_WINDOW_HEIGHT) #GET NEW COORDINATES
 
 	for i in range(len(alist1)):
 		alist1[i][0]=alist1[i][0]*5+25
@@ -760,17 +791,17 @@ def main1():
 		Zlis.append(sr)	
 	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]'''
 
-	for i in range(1,11):#11
+	for i in range(1,11): #APPEND GUN FRAMES TO THE G1 LIST
 		sr="Gun_"
 		ss=""
-		for j in range(0,5-int(log10(i))):
-			ss+=str(0)
-		sr+=ss+str(i)+".obj"
+		for j in range(0,5-int(log10(i))): #NAME_(NUMBER OF ZEROS)+FrameNo. Ex: GUN_000001.obj
+			ss+=str(0) #APPEND NUMBER OF ZEROS
+		sr+=ss+str(i)+".obj" #APPEND NUMBER OF THE FRAME + Extention
 		G1lis.append(sr)
 	G1lis=[OBJ(G1lis[i],False,"Models/Gun/") for i in range (len(G1lis))]
 
 
-	for i in range(1,15):#24
+	for i in range(1,15): #APPEND FRAMES FOR AXE TO MELEE 1 LIST
 		sr="Axe_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
@@ -783,7 +814,7 @@ def main1():
 	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
 	zombieSound.set_volume(0.1*sound_game)
 
-	#create zombies
+	#CREATE ZOMBIES
 	#lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
@@ -793,9 +824,8 @@ def main1():
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[5,0,30],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,30],30,0.5,-90))
 
-	#create the SKY
 	
-
+	#CREATE THE SKYBOX
 	lisTexture.append(texture('nightsky_up.jpg',[[-1,10000,-1],[-1,10000,1],[1,10000,1],[1,10000,-1]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_up.jpg',[[-1000,1000,-1000],[-1000,1000,1000],[1000,1000,1000],[1000,1000,-1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_ft.jpg',[[-1000,1000,1000],[-1000,-1000,1000],[1000,-1000,1000],[1000,1000,1000]],[[1,0],[0,0],[0,1],[1,1]],1))
@@ -803,41 +833,52 @@ def main1():
 	lisTexture.append(texture('nightsky_bk.jpg',[[1000,1000,-1000],[1000,-1000,-1000],[-1000,-1000,-1000],[-1000,1000,-1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_rt.jpg',[[-1000,1000,-1000],[-1000,-1000,-1000],[-1000,-1000,1000],[-1000,1000,1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 
-	world1=world('world.png',-500,-500)
-	world1.render(4,100)
-	yHouse=world1.height(26,5)
+	#RENDER THE WORLD FROM THE HEIGHTMAP
+	world1=world('world.png',-500,-500) #TRANSLATE THE MAP TO -500,-500
+	world1.render(4,100) #RESIZE IT 4x AND SET HEIGHT RATIO TO 100
+	yHouse=world1.height(26,5) #HEIGHT OF HOUSE IS SET TO WORLD HEIGHT AT 26,5
+
+	#LIST OF HOUSES MODELS CONTAIN OUR ONLY HOUSE MODEL
 	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,yHouse+0.1,4],-1,0.05,0))
 
-
+	#DOORS OBJECTS LIST TAKES THE DOOR MODEL
 	Dlis=[OBJ("Door1.obj",False,"Models/Door1/")]
-	#first door
+	
+	#ENTERY DOOR
 	lisDoors.append([obje(Dlis,0,[32.5,world1.height(32.5,4),4],3,0.05,0,0,1),"open the Door"])
-	#first floor doors
+	
+	#FIRST FLOOR DOORS
 	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4),14],3,0.05,90,0,1),"open the Door"])
 	lisSpecialDoors.append([obje(Dlis,0,[90,world1.height(32.5,4),14],3,0.05,90,1,0),"write the password","HELP!"])
 	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),11.5],3,0.05,90,0,1),"open the Door"])
 	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),26.5],3,0.05,90,0,1),"open the Door"])
 	lisDoors.append([obje(Dlis,0,[100,world1.height(32.5,4),41.5],3,0.05,90,0,1),"open the Door"])
-	#second floor doors
+	
+	#SECOND FLOOR DOORS
 	lisSpecialDoors.append([obje(Dlis,0,[100,world1.height(32.5,4)+15,41.5],3,0.05,90,0,0),"write the password","Done"])
 	lisDoors.append([obje(Dlis,0,[90,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"open the Door"])
 	lisDoors.append([obje(Dlis,0,[55,world1.height(32.5,4)+15,41.5],3.5,0.05,90,1,1),"open the Door"])
 
 
-	#create some sound
+	#CREATING THE SOUNDS
+	axeSound=pygame.mixer.Sound("Sounds/Axe.wav")
+	axeSound.set_volume(0.1*sound_game)
+
 	fireSound=pygame.mixer.Sound("Sounds/gun_fire.wav")
 	fireSound.set_volume(0.1*sound_game)
+
+	manSound=pygame.mixer.Sound("Sounds/Breathing.wav")
+	manSound.set_volume(0.1*sound_game)
 
 	windSound=pygame.mixer.Sound("Sounds/Wind.wav")
 	windSound.set_volume(0.04*sound_BGM)
 	windSound.play(-1)
-	worldAudio=1
+	worldAudio=1 #FLAG FOR CURRENT WORLD MUSIC STATE
 
 	houseMusic=pygame.mixer.Sound("Sounds/Nightmare.wav")
 	houseMusic.set_volume(0.02*sound_BGM)
-	houseAudio=0
+	houseAudio=0 #FLAG FOR CURRENT HOUSE MUSIC STATE
 
-	
 	footSound=pygame.mixer.Sound("Sounds/FootStep.wav")
 	footSound.set_volume(0.1*sound_game)
 
@@ -850,6 +891,7 @@ def main1():
 	bSound1=pygame.mixer.Sound("Menu\Audio\ButtonScroll.wav")
 	bSound2=pygame.mixer.Sound("Menu\Audio\ButtonSelect.wav")
 
+	#CREATE THE PLAYER (CAMERA)
 	player1=player(fovy,window_width,window_height,footSound,[G1lis,M1lis])
 
 

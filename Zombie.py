@@ -64,5 +64,16 @@ class zombie:
 			elif(self.z<player.z-0.1):
 				self.z+=0.1
 
+	def walk2(self,player):
+		self.rotate=atan((self.x-player.x)/(self.z-player.z))*180/3.14-90
+		if(self.animation):
+			if(self.x>player.x+0.1):
+				self.x+=1
+			elif(self.x<player.x-0.1):
+				self.x-=1
+			if(self.z>player.z+0.1):
+				self.z+=1
+			elif(self.z<player.z-0.1):
+				self.z-=1
 
 

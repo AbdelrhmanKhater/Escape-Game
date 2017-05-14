@@ -74,6 +74,23 @@ PI=3.14159265359
 #Pause menu images (textures holders)
 pauseimage_id,pauseimage=0,0
 
+def drawLine(x0,y0,x1,y1, R,G,B,w=20): 
+        glLineWidth(w)
+        glColor(R,G,B)
+        glLoadIdentity()
+        glBegin(GL_LINES) 
+        glVertex(x0, y0,0) 
+        glVertex(x1, y1,0) 
+        glEnd() 
+
+
+def drawHealth(y):    
+        glLineWidth(10.0)
+        H=(100-player1.health)/100 #From 0 to 1
+        R,G,B=H,1-H,1-H
+        drawLine(H,y,1,y,R,G,B,14)
+
+
 #Pause menu image initialization
 def texInit(name,id):
 	global pauseimage_id,pauseimage
@@ -304,6 +321,7 @@ def display():
 	t=time.time() #Store the time when we enter the function (to calculate the amount of time this function needs)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
 	player1.updateCamera() #PROJECTION AND LOOK AT STUFF.
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
@@ -367,7 +385,10 @@ def display():
 	#display all zombies,make them walk.
 	for i in range(len(lisZombies)):
 		lisZombies[i].height(world1.height(lisZombies[i].x,lisZombies[i].z))
-		lisZombies[i].dist(player1,zombieSound)
+		if(lisZombies[i].dist(player1,zombieSound)):
+			player1.health-=10
+			lisZombies[i].walk2(player1)
+
 		glLoadIdentity()
 		lisZombies[i].disp()
 		lisZombies[i].walk(player1)
@@ -400,8 +421,17 @@ def display():
 	drawCursor()
 	backPrespective()
 
-	goOrtho()
-	drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
+	#goOrtho()
+	#drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
+	#backPrespective()
+
+	goOrtho(l=-4,r=1)
+	drawHealth(0.895)
+	drawHealth(0.9)
+	drawHealth(0.905)
+	drawLine(-0.01,0.91,1,0.91,1,1,1)
+	drawLine(-0.01,0.9,1,0.9,1,1,1)
+	drawLine(-0.01,0.89,1,0.89,1,1,1)
 	backPrespective()
 
 	glutSwapBuffers()
@@ -413,6 +443,13 @@ def display():
 
 
 #DRAWTEXT FUNC. FOR THE MENU BUTTONS - USES LIST
+def khaled():
+	glColor(1,1,1)
+	glLineWidth(12)
+	glBegin(GL_LINES)
+	glVertex(0.5,0.5,0)
+	glVertex(-0.5,0.5,0)
+	glEnd()
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
 	glLoadIdentity()
@@ -450,11 +487,11 @@ def drawText(string, x, y,scale=0.0005,w=2,r=0,g=0,b=0):
 #THIS FUNCTION CHANGES TO ORTHOGRAPHIC PROJECTION
 #TO DISPLAY 2D STUFF ON SCREEN BEFORE GOING BACK PERSPECTIVE
 
-def goOrtho():
+def goOrtho(l=-1,r=1,b=-1,t=1,n=-1,f=1):
 	glMatrixMode(GL_PROJECTION)
 	glPushMatrix()
 	glLoadIdentity()
-	glOrtho(-1,1,-1,1,-1,1)
+	glOrtho(l,r,b,t,n,f)
 	glMatrixMode(GL_MODELVIEW)
 	glPushMatrix()
 	glLoadIdentity()
@@ -491,7 +528,7 @@ def Timer(v):
 
 	time_calculated=time.time()-t
 
-	LastFps=int((1/(time_calculated)+LastFps)/2)
+	#LastFps=int((1/(time_calculated)+LastFps)/2)
 
 	if(time_interval-time_calculated*1000>0):
 		t=time_interval-time_calculated*1000
@@ -784,14 +821,14 @@ def main1():
 	M1lis=[]
 
 
-	'''for i in range(1,156,2):#156
+	for i in range(1,65,2):#156
 		sr="Monster_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
 			ss+=str(0)
 		sr+=ss+str(i)+".obj"
 		Zlis.append(sr)	
-	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]'''
+	Zlis=[OBJ(Zlis[i],False,"Models/MonsterLowQ/Low/") for i in range (len(Zlis))]
 
 	for i in range(1,11): #APPEND GUN FRAMES TO THE G1 LIST
 		sr="Gun_"
@@ -817,7 +854,7 @@ def main1():
 	zombieSound.set_volume(0.1*sound_game)
 
 	#CREATE ZOMBIES
-	#lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
 	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
 	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[30,0,0],30,0.5,-90))
@@ -834,12 +871,17 @@ def main1():
 	lisTexture.append(texture('nightsky_lf.jpg',[[1000,1000,1000],[1000,-1000,1000],[1000,-1000,-1000],[1000,1000,-1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_bk.jpg',[[1000,1000,-1000],[1000,-1000,-1000],[-1000,-1000,-1000],[-1000,1000,-1000]],[[1,0],[0,0],[0,1],[1,1]],1))
 	lisTexture.append(texture('nightsky_rt.jpg',[[-1000,1000,-1000],[-1000,-1000,-1000],[-1000,-1000,1000],[-1000,1000,1000]],[[1,0],[0,0],[0,1],[1,1]],1))
+	#lisTexture.appedn(texture('Ghost1.jpeg',[[],[],[],[]],[[1,0],[0,0],[0,1],[1,1]],1))
 
 	#RENDER THE WORLD FROM THE HEIGHTMAP
 	world1=world('world.png',-500,-500) #TRANSLATE THE MAP TO -500,-500
 	world1.render(4,100) #RESIZE IT 4x AND SET HEIGHT RATIO TO 100
 	yHouse=world1.height(26,5) #HEIGHT OF HOUSE IS SET TO WORLD HEIGHT AT 26,5
 
+	lisTexture.append(texture('Ghost1.jpeg',[[69,yHouse+10,4+0.5],[69,yHouse+10-5,4+0.5],[65,yHouse+10-5,4+0.5],[65,yHouse+10,4+0.5]],[[1,0],[0,0],[0,1],[1,1]],1))
+	lisTexture.append(texture('Ghost2.jpeg',[[69+4,yHouse+10,34-0.6],[69+4,yHouse+10-5,34-0.6],[72+4,yHouse+10-5,34-0.6],[72+4,yHouse+10,34-0.6]],[[1,0],[0,0],[0,1],[1,1]],1))
+	lisTexture.append(texture('Ghost3.jpeg',[[50,yHouse+10,4+0.5],[50,yHouse+10-5,4+0.5],[45,yHouse+10-5,4+0.5],[45,yHouse+10,4+0.5]],[[1,0],[0,0],[0,1],[1,1]],1))
+	
 	#LIST OF HOUSES MODELS CONTAIN OUR ONLY HOUSE MODEL
 	lisHouse.append(obje([OBJ("House.obj",False,"Models/House/")],0,[25,yHouse+0.1,4],-1,0.05,0))
 

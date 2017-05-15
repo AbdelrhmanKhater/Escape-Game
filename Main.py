@@ -87,7 +87,7 @@ def drawLine(x0,y0,x1,y1, R,G,B,w=20):
 def drawHealth(y):    
         glLineWidth(10.0)
         H=(100-player1.health)/100 #From 0 to 1
-        R,G,B=H,1-H,1-H
+        R,G,B=H,1-H,0
         drawLine(H,y,1,y,R,G,B,14)
 
 
@@ -308,9 +308,7 @@ def draw_window(x,y,z,scale,rot=0):
 
 
 LastFps=0 #COUNTING FPS USING LAST AVERAGE WITH LAST FPS
-
 #MAIN GAME DISPLAY FUNCTION
-
 def display():
 
 	global houseAudio,worldAudio,houseMusic,windSound,LastFps
@@ -322,8 +320,12 @@ def display():
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+
 	player1.updateCamera() #PROJECTION AND LOOK AT STUFF.
 	glMatrixMode(GL_MODELVIEW)
+
+	H=(100-player1.health)/100
+	glColor4f(H,0,0,0.5)
 	glLoadIdentity()
 	glLightfv(GL_LIGHT0, GL_POSITION,  (player1.x, player1.y, player1.z,1))
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 25)
@@ -443,13 +445,14 @@ def display():
 
 
 #DRAWTEXT FUNC. FOR THE MENU BUTTONS - USES LIST
-def khaled():
+'''def khaled():
 	glColor(1,1,1)
 	glLineWidth(12)
 	glBegin(GL_LINES)
 	glVertex(0.5,0.5,0)
 	glVertex(-0.5,0.5,0)
 	glEnd()
+'''
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
 	glLoadIdentity()

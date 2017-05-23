@@ -53,7 +53,16 @@ class zombie:
 
 	#make the zombie to walk toward the player
 	def walk(self,player):
-		self.rotate=atan((self.x-player.x)/(self.z-player.z))*180/3.14-90
+		theta=0
+		if(player.x-self.x<0 and player.z-self.z<0):
+			theta=180
+		elif(player.x-self.x<0):
+			theta=360
+		elif(player.z-self.z<0):
+			theta=180
+
+		if(self.z-player.z != 0):
+			self.rotate=atan((player.x-self.x)/(player.z-self.z))*180/3.14-90+theta
 		if(self.animation):
 			if(self.x>player.x+0.1):
 				self.x-=0.1
@@ -65,7 +74,7 @@ class zombie:
 				self.z+=0.1
 
 	def walk2(self,player):
-		self.rotate=atan((self.x-player.x)/(self.z-player.z))*180/3.14-90
+		#self.rotate=atan((self.x-player.x)/(self.z-player.z))*180/3.14-90
 		if(self.animation):
 			if(self.x>player.x+0.1):
 				self.x+=1

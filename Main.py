@@ -11,7 +11,7 @@ from Object import *
 from World import *
 #NEEDED LIBRARIES
 from math import *
-import sys, pygame,os,numpy,time
+import sys, pygame,os,numpy,time,random
 
 #Variables needed
 global player1,fovy,window_width,window_height,fullscreen,fireSound,windSound,zombieSound,footSound,world1,yHouse
@@ -270,7 +270,7 @@ def bullet(player, enemy):
 	zc=enemy.z
 
 	#This variable represents the zombie's head (sphere) radius.
-	r=0.5
+	r=0.6
 
 	#THE MATH - HIT OR NOT?
 	a=xd**2+yd**2+zd**2
@@ -308,16 +308,15 @@ def draw_window(x,y,z,scale,rot=0):
 
 
 LastFps=0 #COUNTING FPS USING LAST AVERAGE WITH LAST FPS
+playerScore=0
+dead=0
 #MAIN GAME DISPLAY FUNCTION
 def display():
-
 	global houseAudio,worldAudio,houseMusic,windSound,LastFps
 	global current_H,current_W
-
 	global player1,yHouse
-
+	global lisZombies,dead
 	t=time.time() #Store the time when we enter the function (to calculate the amount of time this function needs)
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 
@@ -418,14 +417,15 @@ def display():
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
-
+	if (random.randrange(0,10,1)==5 and len(lisZombies)<10):
+		lisZombies.append(zombie(100,Zlis,[50+random.randrange(-100,100,1),0,50+random.randrange(-100,100,1)],200,0.5,-90,zombieSound))
 	goOrtho()
 	drawCursor()
 	backPrespective()
 
-	#goOrtho()
-	#drawText(str(LastFps),-0.96,0.92,0.0005,2,1,0,0)
-	#backPrespective()
+	goOrtho()
+	drawText("Score "+str(playerScore),-0.86,0.92,0.0004,2,1,0,0)
+	backPrespective()
 
 	goOrtho(l=-4,r=1)
 	drawHealth(0.895)
@@ -443,16 +443,9 @@ def display():
 		glutPositionWindow(20,30)
 		glutReshapeWindow(window_width, window_height)
 
+	if player1.health==0:
+		dead=1
 
-#DRAWTEXT FUNC. FOR THE MENU BUTTONS - USES LIST
-'''def khaled():
-	glColor(1,1,1)
-	glLineWidth(12)
-	glBegin(GL_LINES)
-	glVertex(0.5,0.5,0)
-	glVertex(-0.5,0.5,0)
-	glEnd()
-'''
 def drawTextB(lis, string,x,y,textsize=0.35):
 	glLineWidth(4)
 	glLoadIdentity()
@@ -515,6 +508,20 @@ def displayPass():
 	s=input("enter the pass:")
 	return s
 
+def deadScreen():
+	glClearColor(0,0,0,0)
+	glDisable(GL_LIGHTING)
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	glOrtho(-1,1,-1,1,-1,1)
+	glMatrixMode(GL_MODELVIEW)
+	glLoadIdentity()
+	drawText("Score "+str(playerScore),-0.2,0,0.0008,2,1,0,0)
+	glutSwapBuffers()
+	time.sleep(7)
+	sys.exit()
+
 def Timer(v):
 	global LastFps
 	t=time.time()#store the time when we enter the function (to calculate the amount of time this function needs)
@@ -525,6 +532,8 @@ def Timer(v):
 	elif paused and paused_settings:
 		glDisable(GL_LIGHTING)
 		displaySettings()
+	elif dead:
+		deadScreen()
 	else:
 		glEnable(GL_LIGHTING)
 		display()
@@ -726,6 +735,7 @@ def mouseShoot(key,state,x,y):
 	global bSize,bColor,blue,white,blue,current_H,current_W,bSound1,bSound2
 	global paused_settings,bColor,blue
 	global fullscreen,sound_game,sound_BGM,bSound1,bSound2,axeSound,manSound
+	global playerScore
 	if paused:
 		if not paused_settings:
 			if bColor[0]==blue:
@@ -784,6 +794,7 @@ def mouseShoot(key,state,x,y):
 						lisZombies[i].zombieSound.fadeout(16000)
 						manSound.play()
 						del lisZombies[i] #Die
+						playerScore+=1
 						break
 			else:
 				axeSound.stop()
@@ -793,13 +804,14 @@ def mouseShoot(key,state,x,y):
 						lisZombies[i].health-=50
 					if(lisZombies[i].health<0):
 						del lisZombies[i]
+						playerScore+=1
 						break
 
 		if((key==3 or key==4 )and state==0):
 			player1.updateTool()
 			#get next gun
 			#play voice
-
+Zlis=[]
 def main1():
 	t=time.time()#to calculate time needed to load the game
 	global current_H,current_W,manSound
@@ -819,7 +831,7 @@ def main1():
 		alist1[i][1]=alist1[i][1]*5+4
 
 	
-	Zlis=[]
+	global Zlis
 	G1lis=[]
 	M1lis=[]
 
@@ -857,15 +869,15 @@ def main1():
 	zombieSound.set_volume(0.1*sound_game)
 
 	#CREATE ZOMBIES
-	lisZombies.append(zombie(100,Zlis,[70,0,32],25,0.5,-90,zombieSound))
-	#lisZombies.append(zombie(100,Zlis,[105,0,14],15,0.5,-90,zombieSound))
-	#lisZombies.append(zombie(100,Zlis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[-20,0,-20],30,0.5,-90))
-	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[30,0,0],30,0.5,-90))
-	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,50],30,0.5,-90))
-	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[1,0,1],30,0.5,-90))
-	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[5,0,30],30,0.5,-90))
-	#lisZombies.append(zombie(100,alis,[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[OBJ("Monster_000001.obj",False,"Models/MonsterLowQ/Low/")],[0,0,30],30,0.5,-90))
-
+	lisZombies.append(zombie(100,Zlis,[100,0,100],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[50,0,50],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[-50,0,-50],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[-50,0,50],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[50,0,-50],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[-20,0,0],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[10,0,10],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[70,0,32],200,0.5,-90,zombieSound))
+	lisZombies.append(zombie(100,Zlis,[70,0,32],200,0.5,-90,zombieSound))
 	
 	#CREATE THE SKYBOX
 	lisTexture.append(texture('nightsky_up.jpg',[[-1,10000,-1],[-1,10000,1],[1,10000,1],[1,10000,-1]],[[1,0],[0,0],[0,1],[1,1]],1))

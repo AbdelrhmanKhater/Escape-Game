@@ -413,7 +413,7 @@ def display():
 
 
 	glLoadIdentity()
-	draw_window(25.3,22.5,10.9,4.2)
+	draw_window(25.3,19.5,10.9,4.2)
 
 	world1.disp()
 	player1.move(keyState,alist1,lisObjs,lisDoors,lisSpecialDoors)
@@ -548,7 +548,7 @@ def Timer(v):
 		t=1
 
 	glutTimerFunc(int(t),Timer,1)
-1494670355
+
 #call function if any key pressed 
 def keyDown(key,xx,yy):
 	global window_height,window_width,current_H,current_W
@@ -836,7 +836,7 @@ def main1():
 	M1lis=[]
 
 
-	for i in range(1,65,2):#156
+	for i in range(1,156,2):#156
 		sr="Monster_"
 		ss=""
 		for j in range(0,5-int(log10(i))):
@@ -868,16 +868,7 @@ def main1():
 	zombieSound=pygame.mixer.Sound("Sounds/zombieSound.wav")
 	zombieSound.set_volume(0.1*sound_game)
 
-	#CREATE ZOMBIES
-	lisZombies.append(zombie(100,Zlis,[100,0,100],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[50,0,50],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[-50,0,-50],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[-50,0,50],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[50,0,-50],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[-20,0,0],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[10,0,10],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[70,0,32],200,0.5,-90,zombieSound))
-	lisZombies.append(zombie(100,Zlis,[70,0,32],200,0.5,-90,zombieSound))
+
 	
 	#CREATE THE SKYBOX
 	lisTexture.append(texture('nightsky_up.jpg',[[-1,10000,-1],[-1,10000,1],[1,10000,1],[1,10000,-1]],[[1,0],[0,0],[0,1],[1,1]],1))
